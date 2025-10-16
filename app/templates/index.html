@@ -1,64 +1,320 @@
 {% extends 'base.html' %}
 {% block title %}Home - TradeGrade{% endblock %}
 {% block content %}
-<header class="hero">
-  <h1>TradeGrade</h1>
-  <p>Advanced fantasy football analytics with AI-powered insights</p>
-  <div class="actions">
-    <a href="{{ url_for('auth.register') }}" role="button" class="btn">Get Started</a>
-    <a href="{{ url_for('league.dashboard') }}" role="button" class="btn secondary">Dashboard</a>
+<style>
+  .hero-section {
+    position: relative;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3b82f6 50%, #f59e0b 75%, #fbbf24 100%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    margin: 2rem 0;
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .hero-content {
+    text-align: center;
+    z-index: 2;
+    position: relative;
+    max-width: 800px;
+    padding: 3rem 2rem;
+  }
+  
+  .hero-title {
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: -0.02em;
+    background: linear-gradient(45deg, #ffffff, #f8fafc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.95);
+    margin-bottom: 2.5rem;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  }
+  
+  .hero-actions {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .hero-btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    border: 2px solid transparent;
+  }
+  
+  .hero-btn-primary {
+    background: linear-gradient(45deg, #ffffff, #f8fafc);
+    color: #1e40af;
+    border-color: rgba(255,255,255,0.3);
+  }
+  
+  .hero-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+    background: linear-gradient(45deg, #f8fafc, #ffffff);
+  }
+  
+  .hero-btn-secondary {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border-color: rgba(255,255,255,0.4);
+    backdrop-filter: blur(10px);
+  }
+  
+  .hero-btn-secondary:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+  }
+  
+  .football-field {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.1;
+    background-image: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 49px,
+        rgba(255,255,255,0.1) 50px,
+        rgba(255,255,255,0.1) 51px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 29px,
+        rgba(255,255,255,0.1) 30px,
+        rgba(255,255,255,0.1) 31px
+      );
+  }
+  
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+  }
+  
+  .feature-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+  }
+  
+  .feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+  
+  .feature-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+  
+  .feature-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+  
+  .feature-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+  }
+  
+  .feature-list li {
+    padding: 0.5rem 0;
+    color: var(--text-secondary);
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .feature-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success);
+    font-weight: bold;
+  }
+  
+  .stats-section {
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+    border-radius: var(--radius-lg);
+    padding: 3rem;
+    margin: 3rem 0;
+    text-align: center;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .stat-item {
+    padding: 1.5rem;
+  }
+  
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 3rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.2rem;
+    }
+    
+    .hero-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .hero-btn {
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .feature-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<header class="hero-section">
+  <div class="football-field"></div>
+  <div class="hero-content">
+    <h1 class="hero-title">TradeGrade</h1>
+    <p class="hero-subtitle">Dominate your fantasy league with AI-powered analytics and real-time insights</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('auth.register') }}" class="hero-btn hero-btn-primary">Start Winning</a>
+      <a href="{{ url_for('league.dashboard') }}" class="hero-btn hero-btn-secondary">View Dashboard</a>
+    </div>
   </div>
 </header>
 
-<div class="grid">
-  <article class="card">
-    <h4>📊 Trade Analysis</h4>
-    <p>AI-powered trade evaluations with comprehensive metrics, position analysis, and real-time market sentiment.</p>
-    <ul>
-      <li>Value delta calculations</li>
+<div class="feature-grid">
+  <article class="feature-card">
+    <span class="feature-icon">🏈</span>
+    <h3 class="feature-title">Trade Analysis</h3>
+    <p class="feature-description">Get instant AI-powered trade evaluations with comprehensive metrics and real-time market sentiment.</p>
+    <ul class="feature-list">
+      <li>Advanced value calculations</li>
       <li>Risk & upside analysis</li>
       <li>Position breakdowns</li>
       <li>Live sentiment streaming</li>
     </ul>
   </article>
   
-  <article class="card">
-    <h4>🎯 Sit/Start Decisions</h4>
-    <p>Smart lineup decisions based on bench alternatives, matchup context, and statistical projections.</p>
-    <ul>
-      <li>Bench comparison analysis</li>
+  <article class="feature-card">
+    <span class="feature-icon">🎯</span>
+    <h3 class="feature-title">Sit/Start Decisions</h3>
+    <p class="feature-description">Make smarter lineup decisions with bench comparisons, matchup analysis, and statistical projections.</p>
+    <ul class="feature-list">
+      <li>Bench alternative analysis</li>
       <li>Position scarcity detection</li>
       <li>Monte Carlo simulations</li>
-      <li>LLM-powered recommendations</li>
+      <li>AI-powered recommendations</li>
     </ul>
   </article>
   
-  <article class="card">
-    <h4>💬 League Board</h4>
-    <p>Private league communication hub for trade discussions and market insights.</p>
-    <ul>
-      <li>League-specific posts</li>
-      <li>Trade requests</li>
+  <article class="feature-card">
+    <span class="feature-icon">💬</span>
+    <h3 class="feature-title">League Board</h3>
+    <p class="feature-description">Connect with your league through private discussions, trade requests, and market insights.</p>
+    <ul class="feature-list">
+      <li>League-specific communication</li>
+      <li>Trade request posts</li>
       <li>Market discussions</li>
-      <li>Real-time updates</li>
+      <li>Real-time notifications</li>
     </ul>
   </article>
 </div>
 
-<div class="card">
-  <h3>Why TradeGrade?</h3>
-  <div class="grid">
-    <div>
-      <h5>🚀 Fast & Accurate</h5>
-      <p>Get instant analysis with comprehensive data aggregation and AI insights.</p>
+<div class="stats-section">
+  <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Why Choose TradeGrade?</h2>
+  <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem;">Join thousands of fantasy managers making smarter decisions</p>
+  
+  <div class="stats-grid">
+    <div class="stat-item">
+      <span class="stat-number">889+</span>
+      <span class="stat-label">Active Players</span>
     </div>
-    <div>
-      <h5>🎨 Modern Design</h5>
-      <p>Beautiful, responsive interface with dark mode support for comfortable viewing.</p>
+    <div class="stat-item">
+      <span class="stat-number">AI</span>
+      <span class="stat-label">Powered Analysis</span>
     </div>
-    <div>
-      <h5>📱 Mobile Ready</h5>
-      <p>Optimized for all devices - analyze trades and make decisions on the go.</p>
+    <div class="stat-item">
+      <span class="stat-number">Real-time</span>
+      <span class="stat-label">Market Data</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">100%</span>
+      <span class="stat-label">Free to Use</span>
     </div>
   </div>
 </div>
