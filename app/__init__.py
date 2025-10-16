@@ -77,27 +77,15 @@ def register_routes(app: Flask) -> None:
 
 def run_startup_tasks(app: Flask) -> None:
     with app.app_context():
-        try:
-            # Check if tables exist by trying to query a simple table
-            from .models import Player
-            Player.query.limit(1).all()
-            
-            # If we get here, tables exist, so run the sync
-            from .services.players import warm_players_cache, sync_active_players_into_db, purge_non_nfl_players
-            
-            # Warm the cache first
-            warm_players_cache()
-            
-            # Sync all active NFL players to database
-            print("Syncing NFL players to database...")
-            removed = purge_non_nfl_players(db, Player)
-            added = sync_active_players_into_db(db, Player)
-            print(f"Player sync complete: {removed} removed, {added} added")
-            
-        except Exception as e:
-            # Tables don't exist yet, skip startup tasks silently
-            # Only print in debug mode to avoid cluttering logs
-            if app.debug:
-                print(f"Tables not ready, skipping startup tasks: {e}")
-            pass
+        from .services.players import warm_players_cache, sync_active_players_into_db, purge_non_nfl_players
+        from .models import Player
+        
+        # Warm the cache first
+        warm_players_cache()
+        
+        # Sync all active NFL players to database
+        print("Syncing NFL players to database...")
+        removed = purge_non_nfl_players(db, Player)
+        added = sync_active_players_into_db(db, Player)
+        print(f"Player sync complete: {removed} removed, {added} added")
 

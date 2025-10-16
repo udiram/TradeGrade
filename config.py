@@ -6,10 +6,8 @@ load_dotenv()
 
 
 class Config:
+    """Base configuration class"""
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", f"sqlite:///{os.path.abspath('app.db')}"
-    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Optional external APIs for analysis/sentiment
@@ -17,6 +15,7 @@ class Config:
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
     NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
     TWITTER_BEARER_TOKEN = os.environ.get("TWITTER_BEARER_TOKEN")
+    
     # OAuth
     OAUTH_GOOGLE_CLIENT_ID = os.environ.get("OAUTH_GOOGLE_CLIENT_ID")
     OAUTH_GOOGLE_CLIENT_SECRET = os.environ.get("OAUTH_GOOGLE_CLIENT_SECRET")
@@ -31,5 +30,39 @@ class Config:
 
     # Socket.IO
     SOCKETIO_MESSAGE_QUEUE = os.environ.get("SOCKETIO_MESSAGE_QUEUE")
+
+
+class DevelopmentConfig(Config):
+    """Development configuration"""
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL", f"sqlite:///{os.path.abspath('app.db')}"
+    )
+
+
+class ProductionConfig(Config):
+    """Production configuration"""
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    
+    # Production-specific settings
+    if not SQLALCHEMY_DATABASE_URI:
+        raise ValueError("DATABASE_URL environment variable must be set in production")
+
+
+class TestingConfig(Config):
+    """Testing configuration"""
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    WTF_CSRF_ENABLED = False
+
+
+# Configuration mapping
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'testing': TestingConfig,
+    'default': DevelopmentConfig
+}
 
 
