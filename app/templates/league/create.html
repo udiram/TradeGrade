@@ -1,10 +1,296 @@
 {% extends 'base.html' %}
 {% block title %}Create League - TradeGrade{% endblock %}
 {% block content %}
-<h3>Create League</h3>
-<form method="post">
-  <label>League Name <input type="text" name="name" required></label>
-  <button type="submit">Create</button>
-</form>
+<div class="page-header">
+  <div class="header-content">
+    <h2>Create New League</h2>
+    <p>Start your own fantasy football league and invite friends to join the competition</p>
+  </div>
+  <a href="{{ url_for('league.dashboard') }}" class="back-btn">← Back to Dashboard</a>
+</div>
+
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-icon">🏈</div>
+      <h3>League Details</h3>
+    </div>
+    
+    <form method="post" class="league-form">
+      <div class="form-group">
+        <label for="name">League Name</label>
+        <input type="text" id="name" name="name" required placeholder="Enter your league name" autocomplete="off">
+        <small>Choose a memorable name for your league</small>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="submit-btn">
+          <span class="icon">✨</span>
+          <span>Create League</span>
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <div class="info-card">
+    <h4>What happens next?</h4>
+    <ul class="info-list">
+      <li>
+        <span class="info-icon">🔑</span>
+        <div>
+          <strong>Get your invite code</strong>
+          <p>We'll generate a unique code to share with friends</p>
+        </div>
+      </li>
+      <li>
+        <span class="info-icon">👥</span>
+        <div>
+          <strong>Invite members</strong>
+          <p>Share the code with friends to join your league</p>
+        </div>
+      </li>
+      <li>
+        <span class="info-icon">📊</span>
+        <div>
+          <strong>Start competing</strong>
+          <p>Build rosters and analyze trades together</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<style>
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.header-content h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-content p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.form-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-color);
+}
+
+.league-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: var(--input-background);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.form-group small {
+  color: var(--muted-color);
+  font-size: 0.875rem;
+}
+
+.form-actions {
+  margin-top: 1rem;
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.3);
+}
+
+.info-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.info-card h4 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-list li {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.info-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  background: var(--secondary-background);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-list li div {
+  flex: 1;
+}
+
+.info-list li strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.info-list li p {
+  margin: 0;
+  color: var(--muted-color);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .form-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .form-card, .info-card {
+    padding: 1.5rem;
+  }
+}
+</style>
 {% endblock %}
 

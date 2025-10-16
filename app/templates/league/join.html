@@ -1,10 +1,338 @@
 {% extends 'base.html' %}
 {% block title %}Join League - TradeGrade{% endblock %}
 {% block content %}
-<h3>Join League</h3>
-<form method="post">
-  <label>Invite Code <input type="text" name="invite_code" required></label>
-  <button type="submit">Join</button>
-</form>
+<div class="page-header">
+  <div class="header-content">
+    <h2>Join a League</h2>
+    <p>Enter an invite code to join an existing fantasy football league</p>
+  </div>
+  <a href="{{ url_for('league.dashboard') }}" class="back-btn">← Back to Dashboard</a>
+</div>
+
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-icon">🔗</div>
+      <h3>Enter Invite Code</h3>
+    </div>
+    
+    <form method="post" class="league-form">
+      <div class="form-group">
+        <label for="invite_code">Invite Code</label>
+        <input type="text" id="invite_code" name="invite_code" required placeholder="Enter the league invite code" autocomplete="off" style="text-transform: uppercase;">
+        <small>Ask a league member for the invite code</small>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="submit-btn">
+          <span class="icon">🚀</span>
+          <span>Join League</span>
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <div class="info-card">
+    <h4>How to get an invite code?</h4>
+    <ul class="info-list">
+      <li>
+        <span class="info-icon">👥</span>
+        <div>
+          <strong>Ask a friend</strong>
+          <p>Get the invite code from someone already in the league</p>
+        </div>
+      </li>
+      <li>
+        <span class="info-icon">📱</span>
+        <div>
+          <strong>Check messages</strong>
+          <p>Look for the code in group chats or messages</p>
+        </div>
+      </li>
+      <li>
+        <span class="info-icon">🏈</span>
+        <div>
+          <strong>Create your own</strong>
+          <p>Start a new league and invite others instead</p>
+        </div>
+      </li>
+    </ul>
+    
+    <div class="create-league-cta">
+      <p>Don't have a code?</p>
+      <a href="{{ url_for('league.create') }}" class="cta-btn">
+        <span class="icon">✨</span>
+        <span>Create New League</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.header-content h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-content p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.form-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-color);
+}
+
+.league-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: var(--input-background);
+  font-family: 'Monaco', 'Menlo', monospace;
+  letter-spacing: 1px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.form-group small {
+  color: var(--muted-color);
+  font-size: 0.875rem;
+}
+
+.form-actions {
+  margin-top: 1rem;
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.3);
+}
+
+.info-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.info-card h4 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-list li {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.info-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  background: var(--secondary-background);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-list li div {
+  flex: 1;
+}
+
+.info-list li strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.info-list li p {
+  margin: 0;
+  color: var(--muted-color);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.create-league-cta {
+  padding: 1.5rem;
+  background: var(--secondary-background);
+  border-radius: 0.75rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.create-league-cta p {
+  margin: 0 0 1rem 0;
+  color: var(--muted-color);
+  font-size: 0.95rem;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.cta-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .form-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .form-card, .info-card {
+    padding: 1.5rem;
+  }
+}
+</style>
 {% endblock %}
 

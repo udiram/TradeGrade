@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}{{ league.name }} - League Members{% endblock %}
+{% block content %}
+<div class="section-title">
+  <h3>{{ league.name }} - League Members</h3>
+  <div class="actions">
+    <a href="{{ url_for('league.dashboard') }}" class="secondary">← Back to Dashboard</a>
+    <a href="{{ url_for('roster.view', league_id=league.id) }}" class="primary">My Roster</a>
+  </div>
+</div>
+
+<div class="grid">
+  {% for member in members_data %}
+    <div class="card">
+      <div class="section-title">
+        <h4>{{ member.user.display_name or member.user.email }}</h4>
+        <span class="badge">{{ member.total_players }} players</span>
+      </div>
+      
+      {% if member.total_players > 0 %}
+        <div class="roster-summary">
+          <div class="starters-section">
+            <h5>Starters ({{ member.starters|length }})</h5>
+            {% if member.starters %}
+              <div class="player-list">
+                {% for entry in member.starters %}
+                  <div class="player-item">
+                    <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                         onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                         alt="{{ entry.player.name }}" class="player-avatar">
+                    <div class="player-info">
+                      <strong>{{ entry.player.name }}</strong>
+                      <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="muted">No starters set</p>
+            {% endif %}
+          </div>
+          
+          <div class="bench-section">
+            <h5>Bench ({{ member.bench|length }})</h5>
+            {% if member.bench %}
+              <div class="player-list">
+                {% for entry in member.bench %}
+                  <div class="player-item">
+                    <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                         onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                         alt="{{ entry.player.name }}" class="player-avatar">
+                    <div class="player-info">
+                      <strong>{{ entry.player.name }}</strong>
+                      <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="muted">No bench players</p>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <p class="muted">No players on roster yet</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+<style>
+.roster-summary {
+  margin-top: 1rem;
+}
+
+.starters-section, .bench-section {
+  margin-bottom: 1.5rem;
+}
+
+.starters-section h5, .bench-section h5 {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.player-item:hover {
+  background: var(--hover-background);
+  border-color: var(--primary);
+}
+
+.player-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+}
+
+.player-info strong {
+  font-size: 0.875rem;
+  color: var(--text-color);
+}
+
+.player-info .muted {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+</style>
+{% endblock %}
