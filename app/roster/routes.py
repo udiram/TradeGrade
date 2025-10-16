@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 
 from ..extensions import db
@@ -47,28 +47,56 @@ def add_player(league_id: int):
 
 
 @roster_bp.route("/<int:league_id>/toggle/<int:entry_id>", methods=["POST"]) 
-@login_required
 def toggle_starter(league_id: int, entry_id: int):
-    entry = RosterEntry.query.get_or_404(entry_id)
-    if entry.user_id != current_user.id or entry.league_id != league_id:
-        flash("Not allowed", "danger")
-        return redirect(url_for("roster.view", league_id=league_id))
-    entry.is_starter = not entry.is_starter
-    db.session.commit()
-    return redirect(url_for("roster.view", league_id=league_id))
+    # Check authentication manually to handle AJAX requests properly
+    if not current_user.is_authenticated:
+        if request.headers.get('Content-Type') == 'application/json' or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"error": "Authentication required"}), 401
+        return redirect(url_for("auth.login", next=request.url))
+    
+    try:
+        entry = RosterEntry.query.get_or_404(entry_id)
+        
+        if entry.user_id != current_user.id or entry.league_id != league_id:
+            return jsonify({"error": "Not allowed"}), 403
+        
+        entry.is_starter = not entry.is_starter
+        db.session.commit()
+        
+        # Always return JSON for POST requests to this endpoint
+        return jsonify({
+            "success": True,
+            "is_starter": entry.is_starter,
+            "player_name": entry.player.name,
+            "player_position": entry.player.position,
+            "player_team": entry.player.team
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
 @roster_bp.route("/<int:league_id>/remove/<int:entry_id>", methods=["POST"]) 
-@login_required
 def remove_player(league_id: int, entry_id: int):
+    # Check authentication manually to handle AJAX requests properly
+    if not current_user.is_authenticated:
+        if request.headers.get('Content-Type') == 'application/json' or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"error": "Authentication required"}), 401
+        return redirect(url_for("auth.login", next=request.url))
+    
     entry = RosterEntry.query.get_or_404(entry_id)
     if entry.user_id != current_user.id or entry.league_id != league_id:
-        flash("Not allowed", "danger")
-        return redirect(url_for("roster.view", league_id=league_id))
+        return jsonify({"error": "Not allowed"}), 403
+    
+    player_name = entry.player.name
     db.session.delete(entry)
     db.session.commit()
-    flash("Player removed", "success")
-    return redirect(url_for("roster.view", league_id=league_id))
+    
+    # Always return JSON for POST requests to this endpoint
+    return jsonify({
+        "success": True,
+        "player_name": player_name
+    })
 
 
 @roster_bp.route("/<int:league_id>/sitstart/<int:player_id>")

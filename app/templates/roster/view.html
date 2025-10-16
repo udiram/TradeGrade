@@ -32,13 +32,9 @@
           <div class="muted">{{ e.player.position }} • {{ e.player.team }}</div>
         </div>
         <div class="actions">
-          <form method="post" action="{{ url_for('roster.toggle_starter', league_id=league_id, entry_id=e.id) }}">
-            <button type="submit" class="secondary">Bench</button>
-          </form>
+          <button type="button" class="secondary toggle-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Bench</button>
           <a href="{{ url_for('roster.sit_start', league_id=league_id, player_id=e.player_id) }}">Sit/Start</a>
-          <form method="post" action="{{ url_for('roster.remove_player', league_id=league_id, entry_id=e.id) }}">
-            <button type="submit" class="secondary">Remove</button>
-          </form>
+          <button type="button" class="secondary remove-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Remove</button>
         </div>
       </div>
     {% else %}
@@ -56,13 +52,9 @@
           <div class="muted">{{ e.player.position }} • {{ e.player.team }}</div>
         </div>
         <div class="actions">
-          <form method="post" action="{{ url_for('roster.toggle_starter', league_id=league_id, entry_id=e.id) }}">
-            <button type="submit">Start</button>
-          </form>
+          <button type="button" class="toggle-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Start</button>
           <a href="{{ url_for('roster.sit_start', league_id=league_id, player_id=e.player_id) }}">Sit/Start</a>
-          <form method="post" action="{{ url_for('roster.remove_player', league_id=league_id, entry_id=e.id) }}">
-            <button type="submit" class="secondary">Remove</button>
-          </form>
+          <button type="button" class="secondary remove-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Remove</button>
         </div>
       </div>
     {% else %}
@@ -109,6 +101,146 @@
     }, 200);
   });
   document.addEventListener('click', (e)=>{ if (!sug.contains(e.target) && e.target!==nameInput) sug.innerHTML=''; });
+
+  // AJAX functionality for roster management
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle toggle starter/bench buttons
+    document.addEventListener('click', async function(e) {
+      if (e.target.classList.contains('toggle-btn')) {
+        e.preventDefault();
+        const entryId = e.target.dataset.entryId;
+        const leagueId = e.target.dataset.leagueId;
+        const button = e.target;
+        
+        // Disable button during request
+        button.disabled = true;
+        button.textContent = '...';
+        
+        try {
+          const response = await fetch(`/roster/${leagueId}/toggle/${entryId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+          });
+          
+          if (!response.ok) {
+            if (response.status === 401) {
+              // Authentication required - redirect to login
+              window.location.href = '/auth/login?next=' + encodeURIComponent(window.location.pathname);
+              return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          let data;
+          try {
+            data = await response.json();
+          } catch (jsonError) {
+            console.error('Failed to parse JSON response:', jsonError);
+            throw new Error('Invalid response format');
+          }
+          
+          if (data && data.success) {
+            // Simple: just reload the page to show the updated roster
+            window.location.reload();
+          } else {
+            throw new Error(data?.error || 'Failed to update player');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          if (error.message.includes('Authentication required')) {
+            alert('Please log in to manage your roster');
+          } else {
+            alert('Failed to update player: ' + error.message);
+          }
+          button.textContent = button.classList.contains('secondary') ? 'Bench' : 'Start';
+        } finally {
+          button.disabled = false;
+        }
+      }
+      
+      // Handle remove player buttons
+      if (e.target.classList.contains('remove-btn')) {
+        e.preventDefault();
+        const entryId = e.target.dataset.entryId;
+        const leagueId = e.target.dataset.leagueId;
+        const button = e.target;
+        const playerCard = button.closest('.player-card');
+        const playerName = playerCard.querySelector('strong').textContent;
+        
+        if (!confirm(`Remove ${playerName} from your roster?`)) {
+          return;
+        }
+        
+        // Disable button during request
+        button.disabled = true;
+        button.textContent = '...';
+        
+        try {
+          const response = await fetch(`/roster/${leagueId}/remove/${entryId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+          });
+          
+          if (!response.ok) {
+            if (response.status === 401) {
+              // Authentication required - redirect to login
+              window.location.href = '/auth/login?next=' + encodeURIComponent(window.location.pathname);
+              return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          let data;
+          try {
+            data = await response.json();
+          } catch (jsonError) {
+            console.error('Failed to parse JSON response:', jsonError);
+            throw new Error('Invalid response format');
+          }
+          
+          if (data && data.success) {
+            // Simple: just reload the page to show the updated roster
+            window.location.reload();
+          } else {
+            throw new Error(data?.error || 'Failed to remove player');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          if (error.message.includes('Authentication required')) {
+            alert('Please log in to manage your roster');
+          } else {
+            alert('Failed to remove player: ' + error.message);
+          }
+          button.textContent = 'Remove';
+        } finally {
+          button.disabled = false;
+        }
+      }
+    });
+    
+    // Function to update badge counts
+    function updateBadgeCounts() {
+      const startersSection = document.querySelector('.card:first-of-type');
+      const benchSection = document.querySelector('.card:last-of-type');
+      
+      const starterCount = startersSection.querySelectorAll('.player-card').length;
+      const benchCount = benchSection.querySelectorAll('.player-card').length;
+      
+      const starterBadge = startersSection.querySelector('.badge');
+      const benchBadge = benchSection.querySelector('.badge');
+      
+      if (starterBadge) starterBadge.textContent = starterCount;
+      if (benchBadge) benchBadge.textContent = benchCount;
+    }
+  });
 </script>
 {% endblock %}
 
