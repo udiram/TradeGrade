@@ -8,6 +8,9 @@ load_dotenv()
 class Config:
     """Base configuration class"""
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL", f"sqlite:///{os.path.abspath('app.db')}"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Optional external APIs for analysis/sentiment
