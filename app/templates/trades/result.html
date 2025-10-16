@@ -1,37 +1,293 @@
 {% extends 'base.html' %}
-{% block title %}Trade Result - TradeGrade{% endblock %}
+{% block title %}Trade Analysis - TradeGrade{% endblock %}
 {% block content %}
-<h3>Trade Result</h3>
-<p><strong>Offered:</strong> {% for p in offered %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
-<p><strong>Requested:</strong> {% for p in requested %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
-{% if trade.numeric_score %}
-  <p><strong>Score:</strong> {{ trade.numeric_score }}</p>
-{% endif %}
-{% if trade.summary %}
-  <article>{{ trade.summary }}</article>
-{% endif %}
-{% if trade.recommendation %}
-  <p><strong>Recommendation:</strong> {{ trade.recommendation }}</p>
+<h3>Trade Analysis Results</h3>
+
+{% if analysis %}
+  <!-- AI Recommendation Card -->
+  <article class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h4>AI Recommendation: {{ analysis.ai_summary.recommendation|upper }}</h4>
+      <div class="badge" style="background: {% if analysis.ai_summary.recommendation == 'accept' %}#10b981{% elif analysis.ai_summary.recommendation == 'decline' %}#ef4444{% else %}#6b7280{% endif %}; color: white;">
+        {{ analysis.ai_summary.confidence }}% confidence
+      </div>
+    </div>
+    <p class="muted">{{ analysis.ai_summary.summary }}</p>
+    {% if analysis.ai_summary.bullets %}
+      <ul>
+        {% for bullet in analysis.ai_summary.bullets %}
+          <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </article>
+
+  <!-- Trade Overview -->
+  <div class="grid">
+    <article class="card">
+      <h5>Trading Away</h5>
+      <div class="actions">
+        {% for p in offered %}
+          <span class="badge">{{ p.name }} ({{ p.position }})</span>
+        {% endfor %}
+      </div>
+      <p class="muted">Total Value: {{ analysis.offered_total }} points</p>
+    </article>
+    
+    <article class="card">
+      <h5>Receiving</h5>
+      <div class="actions">
+        {% for p in requested %}
+          <span class="badge">{{ p.name }} ({{ p.position }})</span>
+        {% endfor %}
+      </div>
+      <p class="muted">Total Value: {{ analysis.requested_total }} points</p>
+    </article>
+  </div>
+
+  <!-- Key Metrics -->
+  <article class="card">
+    <h5>Trade Metrics</h5>
+    <div class="grid">
+      <div>
+        <h6>Value Analysis</h6>
+        <table>
+          <tbody>
+            <tr><td>Offered Total</td><td>{{ analysis.offered_total }}</td></tr>
+            <tr><td>Requested Total</td><td>{{ analysis.requested_total }}</td></tr>
+            <tr><td><strong>Net Value</strong></td><td><strong>{{ analysis.delta|round(1) }}</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h6>Risk Analysis</h6>
+        <table>
+          <tbody>
+            <tr><td>Offered Avg Risk</td><td>{{ analysis.risk_analysis.offered_avg_risk }}</td></tr>
+            <tr><td>Requested Avg Risk</td><td>{{ analysis.risk_analysis.requested_avg_risk }}</td></tr>
+            <tr><td><strong>Risk Change</strong></td><td><strong>{{ analysis.risk_analysis.risk_delta|round(3) }}</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h6>Upside Analysis</h6>
+        <table>
+          <tbody>
+            <tr><td>Offered Avg Projection</td><td>{{ analysis.upside_analysis.offered_avg_projection }}</td></tr>
+            <tr><td>Requested Avg Projection</td><td>{{ analysis.upside_analysis.requested_avg_projection }}</td></tr>
+            <tr><td><strong>Upside Change</strong></td><td><strong>{{ analysis.upside_analysis.upside_delta|round(1) }}</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </article>
+
+  <!-- Position Breakdown -->
+  <article class="card">
+    <h5>Position Analysis</h5>
+    <div class="grid">
+      <div>
+        <h6>Offered by Position</h6>
+        <table>
+          <thead><tr><th>Position</th><th>Count</th><th>Total Value</th><th>Avg Value</th></tr></thead>
+          <tbody>
+            {% for pos, data in analysis.position_analysis.offered.items() %}
+              <tr>
+                <td>{{ pos }}</td>
+                <td>{{ data.count }}</td>
+                <td>{{ data.total_value|round(1) }}</td>
+                <td>{{ data.avg_value|round(1) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h6>Requested by Position</h6>
+        <table>
+          <thead><tr><th>Position</th><th>Count</th><th>Total Value</th><th>Avg Value</th></tr></thead>
+          <tbody>
+            {% for pos, data in analysis.position_analysis.requested.items() %}
+              <tr>
+                <td>{{ pos }}</td>
+                <td>{{ data.count }}</td>
+                <td>{{ data.total_value|round(1) }}</td>
+                <td>{{ data.avg_value|round(1) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </article>
+
+  <!-- Detailed Player Tables -->
+  <div class="grid">
+    <article class="card">
+      <h5>Offered Players - Detailed</h5>
+      <table>
+        <thead><tr><th>Player</th><th>Pos</th><th>Team</th><th>Proj</th><th>Risk</th><th>Value</th></tr></thead>
+        <tbody>
+          {% for p in analysis.offered_table %}
+            <tr>
+              <td>{{ p.name }}</td>
+              <td>{{ p.position }}</td>
+              <td>{{ p.team }}</td>
+              <td>{{ p.proj }}</td>
+              <td>{{ p.injury }}</td>
+              <td><strong>{{ p.value }}</strong></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </article>
+    
+    <article class="card">
+      <h5>Requested Players - Detailed</h5>
+      <table>
+        <thead><tr><th>Player</th><th>Pos</th><th>Team</th><th>Proj</th><th>Risk</th><th>Value</th></tr></thead>
+        <tbody>
+          {% for p in analysis.requested_table %}
+            <tr>
+              <td>{{ p.name }}</td>
+              <td>{{ p.position }}</td>
+              <td>{{ p.team }}</td>
+              <td>{{ p.proj }}</td>
+              <td>{{ p.injury }}</td>
+              <td><strong>{{ p.value }}</strong></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </article>
+  </div>
+
+  <!-- Visual Charts -->
+  <article class="card">
+    <h5>Trade Visualization</h5>
+    <div class="grid">
+      <div>
+        <h6>Value Comparison</h6>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="flex: 1;">
+            <div style="background: #ef4444; height: 20px; width: {{ (analysis.offered_total / (analysis.offered_total + analysis.requested_total) * 100)|round(0) }}%; border-radius: 4px;"></div>
+            <small class="muted">Offered: {{ analysis.offered_total }}</small>
+          </div>
+          <div style="flex: 1;">
+            <div style="background: #10b981; height: 20px; width: {{ (analysis.requested_total / (analysis.offered_total + analysis.requested_total) * 100)|round(0) }}%; border-radius: 4px;"></div>
+            <small class="muted">Requested: {{ analysis.requested_total }}</small>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h6>Risk vs Upside</h6>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="flex: 1;">
+            <div style="background: #f59e0b; height: 20px; width: {{ (analysis.risk_analysis.offered_avg_risk * 100)|round(0) }}%; border-radius: 4px;"></div>
+            <small class="muted">Risk: {{ analysis.risk_analysis.offered_avg_risk|round(3) }}</small>
+          </div>
+          <div style="flex: 1;">
+            <div style="background: #3b82f6; height: 20px; width: {{ (analysis.upside_analysis.offered_avg_projection / 20 * 100)|round(0) }}%; border-radius: 4px;"></div>
+            <small class="muted">Upside: {{ analysis.upside_analysis.offered_avg_projection|round(1) }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Live Sentiment -->
+  <article class="card">
+    <h5>Live Market Sentiment</h5>
+    <p class="muted">Streaming recent headlines and chatter per player. Scores roughly range from -1 (bearish) to +1 (bullish). We aggregate multiple snippets each tick.</p>
+    <div style="display:flex; gap:1rem; align-items:center; margin:.5rem 0;">
+      <span class="badge" style="background:#ef4444;color:#fff">Bearish</span>
+      <div style="flex:1; height:8px; background:linear-gradient(90deg,#ef4444 0%,#f59e0b 50%,#10b981 100%);"></div>
+      <span class="badge" style="background:#10b981;color:#fff">Bullish</span>
+    </div>
+    <div id="sentiment" class="muted">Loading sentiment analysis...</div>
+  </article>
+
 {% else %}
   <p>Analysis pending...</p>
 {% endif %}
-<hr>
-<h4>Live Sentiment</h4>
-<div id="sentiment"></div>
+
 <script>
   const room = 'trade-{{ trade.id }}';
   const sdiv = document.getElementById('sentiment');
-  if (window.socket) {
+  console.log('Setting up sentiment for room:', room);
+
+  function initSentiment() {
+    if (!window.socket) {
+      console.log('Socket not ready yet, retrying...');
+      sdiv.innerHTML = '<p class="muted">Connecting to sentiment stream...</p>';
+      return false;
+    }
+    const socket = window.socket;
+    console.log('Socket ready, joining room:', room);
     socket.emit('join', { room });
+
     socket.on('sentiment_update', (payload) => {
+      console.log('Received sentiment update:', payload);
       const { updates } = payload;
-      const html = updates.map(u => `<p><b>${u.player}</b>: ${u.sentiment.label} (${u.sentiment.score})</p>`).join('');
-      sdiv.innerHTML = html;
+      if (updates && updates.length > 0) {
+        const rows = updates.map(u => {
+          const score = Math.max(-1, Math.min(1, Number(u.sentiment.score || 0)));
+          const pct = Math.round((score + 1) * 50); // -1..1 -> 0..100
+          const color = score > 0.15 ? '#10b981' : (score < -0.15 ? '#ef4444' : '#f59e0b');
+          const hn = (u.headlines || []).map(h => `<li class="muted" style="list-style:disc;margin-left:1rem">${h}</li>`).join('');
+          return `
+            <tr>
+              <td style="white-space:nowrap"><strong>${u.player}</strong></td>
+              <td style="text-transform:capitalize">${u.sentiment.label}</td>
+              <td style="min-width:220px">
+                <div style="background:#e5e7eb;height:10px;border-radius:6px;overflow:hidden">
+                  <div style="background:${color};height:10px;width:${pct}%"></div>
+                </div>
+                <small class="muted">${score}</small>
+              </td>
+              <td><ul style="margin:.25rem 0">${hn}</ul></td>
+            </tr>`;
+        }).join('');
+        sdiv.innerHTML = `
+          <table>
+            <thead><tr><th>Player</th><th>Sentiment</th><th>Score</th><th>Recent headlines</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+      } else {
+        sdiv.innerHTML = '<p class="muted">No recent sentiment data available.</p>';
+      }
     });
+
+    socket.on('connect', () => {
+      console.log('Socket connected');
+      sdiv.innerHTML = '<p class="muted">Connected, waiting for sentiment data...</p>';
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected');
+      sdiv.innerHTML = '<p class="muted">Disconnected from sentiment stream.</p>';
+    });
+
+    window.addEventListener('beforeunload', () => {
+      console.log('Leaving room:', room);
+      socket.emit('leave', { room });
+    });
+    return true;
   }
-  window.addEventListener('beforeunload', () => { if (window.socket) socket.emit('leave', { room }); });
-  window.socket = socket;
-  
+
+  // Try immediately, then retry a few times if the socket is not ready yet
+  if (!initSentiment()) {
+    let attempts = 0;
+    const maxAttempts = 10;
+    const interval = setInterval(() => {
+      attempts += 1;
+      if (initSentiment() || attempts >= maxAttempts) {
+        clearInterval(interval);
+        if (attempts >= maxAttempts && !window.socket) {
+          sdiv.innerHTML = '<p class="muted">Socket connection not available.</p>';
+        }
+      }
+    }, 300);
+  }
 </script>
 {% endblock %}
-

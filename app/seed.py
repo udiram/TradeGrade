@@ -3,8 +3,13 @@ from .models import Player
 
 
 def seed_players_if_empty():
-    if Player.query.count() > 0:
+    try:
+        if Player.query.count() > 0:
+            return
+    except Exception:
+        # Tables don't exist yet, skip seeding
         return
+    
     samples = [
         ("Patrick Mahomes", "QB", "KC"),
         ("Josh Allen", "QB", "BUF"),

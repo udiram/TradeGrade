@@ -2,6 +2,128 @@
 {% block title %}Sit or Start - TradeGrade{% endblock %}
 {% block content %}
 <h3>Sit or Start: {{ player.name }}</h3>
-<p>Analysis coming soon.</p>
+
+{% if analysis %}
+  <article class="card">
+    <h4>Recommendation: {{ (analysis.llm.final or analysis.decision)|upper }}</h4>
+    <p class="muted">{{ analysis.llm.summary or ('Composite score: ' ~ analysis.score) }}</p>
+    
+    <!-- Quick KPIs -->
+    <div class="grid" style="margin:.5rem 0;">
+      <div>
+        <small class="muted">Win prob vs bench</small>
+        <div style="background:#e5e7eb;height:10px;border-radius:6px;overflow:hidden">
+          <div style="background:#10b981;height:10px;width: {{ (analysis.distribution.win_prob_vs_bench*100)|round(0) }}%"></div>
+        </div>
+      </div>
+      <div>
+        <small class="muted">Margin vs bench</small>
+        <div class="badge">{{ analysis.margin is defined and (analysis.margin|round(1)) or 0 }}</div>
+      </div>
+      <div>
+        <small class="muted">Risk / Difficulty</small>
+        <div class="muted">inj {{ analysis.breakdown.injury_risk }} · opp {{ analysis.breakdown.opponent_difficulty }}</div>
+      </div>
+    </div>
+    
+    <!-- Bench Comparison Context -->
+    {% if analysis.reason %}
+      <div class="alert alert-info">
+        {% if analysis.reason == "position_scarcity" %}
+          <strong>Position Scarcity:</strong> {{ player.name }} is the only {{ player.position }} on your roster - must start.
+        {% elif analysis.reason == "no_alternatives" %}
+          <strong>No Alternatives:</strong> No bench players at {{ player.position }} position - default to start.
+        {% endif %}
+      </div>
+    {% elif analysis.bench_baseline and analysis.margin is defined %}
+      <div class="alert alert-info">
+        <strong>Comparison vs {{ analysis.comparison_side }}:</strong> 
+        {{ analysis.alternatives_count }} alternatives averaging {{ analysis.bench_baseline }} points. 
+        Margin: {{ analysis.margin|round(1) }} points vs bench.
+      </div>
+    {% endif %}
+    
+    {% if analysis.llm.bullets and analysis.llm.bullets|length %}
+      <ul>
+        {% for b in analysis.llm.bullets %}<li>{{ b }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    
+    <!-- Alternatives Table -->
+    {% if analysis.alternatives and analysis.alternatives|length %}
+      <h5>Bench alternatives</h5>
+      <table>
+        <thead><tr><th>Player</th><th>Pos</th><th>Team</th><th>Proj</th></tr></thead>
+        <tbody>
+        {% for a in analysis.alternatives %}
+          <tr><td>{{ a.name }}</td><td>{{ a.position }}</td><td>{{ a.team }}</td><td>{{ a.proj }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    <div class="grid">
+      <div>
+        <h5>Projection breakdown</h5>
+        <table>
+          <tbody>
+            <tr><td>Projected points</td><td>{{ analysis.breakdown.projection }}</td></tr>
+            <tr><td>Injury risk</td><td>{{ analysis.breakdown.injury_risk }}</td></tr>
+            <tr><td>Opponent difficulty</td><td>{{ analysis.breakdown.opponent_difficulty }}</td></tr>
+            <tr><td>Recent form</td><td>{{ analysis.breakdown.recent_form }}</td></tr>
+          </tbody>
+        </table>
+        <h5>Context</h5>
+        <p class="muted">Opponent: {{ analysis.context.opponent }} ({{ analysis.context.opponent_metrics.difficulty_index }})</p>
+        <ul>
+          {% for h in analysis.context.headlines %}
+            <li class="muted">{{ h }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h5>Distribution vs Bench</h5>
+        <p class="muted">Bench baseline: {{ analysis.distribution.bench_baseline }}</p>
+        <table>
+          <tbody>
+            <tr><td>Mean</td><td>{{ analysis.distribution.mean }}</td></tr>
+            <tr><td>Std dev</td><td>{{ analysis.distribution.std }}</td></tr>
+            <tr><td>P10</td><td>{{ analysis.distribution.percentiles.p10 }}</td></tr>
+            <tr><td>P25</td><td>{{ analysis.distribution.percentiles.p25 }}</td></tr>
+            <tr><td>P50</td><td>{{ analysis.distribution.percentiles.p50 }}</td></tr>
+            <tr><td>P75</td><td>{{ analysis.distribution.percentiles.p75 }}</td></tr>
+            <tr><td>P90</td><td>{{ analysis.distribution.percentiles.p90 }}</td></tr>
+            <tr><td>Prob(outscore bench)</td><td>{{ analysis.distribution.win_prob_vs_bench }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <details>
+      <summary>Advanced statistics (expand)</summary>
+      <div id="hist" style="margin-top:.5rem"></div>
+    </details>
+  </article>
+
+  <script>
+    const hist = {{ analysis.distribution.hist | tojson }};
+    const container = document.getElementById('hist');
+    if (container) {
+      const maxCount = Math.max(...hist.counts);
+      const scale = 100 / maxCount;
+      const bars = hist.counts.map((c, i) => {
+        const start = hist.edges[i].toFixed(1);
+        const end = hist.edges[i+1].toFixed(1);
+        return `<div style="display:flex;align-items:center;gap:.5rem;">
+          <div class="muted" style="width:90px;">${start}-${end}</div>
+          <div style="background:#3b82f6;height:12px;width:${(c*scale).toFixed(1)}%"></div>
+          <div class="muted">${c}</div>
+        </div>`;
+      }).join('');
+      container.innerHTML = bars;
+    }
+  </script>
+{% else %}
+  <p>No analysis available.</p>
+{% endif %}
 {% endblock %}
 

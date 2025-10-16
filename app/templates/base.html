@@ -1,21 +1,381 @@
 <!doctype html>
-<html>
+<html data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}TradeGrade{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
     <style>
-      header.hero {padding: 2rem 0; text-align:center}
-      .card {border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:.5rem 0}
-      .grid {display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1rem}
-      nav ul li a.active {text-decoration: underline}
-      .muted {color:#6b7280}
-      .badge {display:inline-block; padding:.2rem .5rem; border-radius:9999px; font-size:.8rem; background:#eef2ff; color:#3730a3}
-      .player-card {display:flex; gap:.75rem; align-items:center}
-      .player-card img {width:48px; height:48px; border-radius:50%; object-fit:cover; background:#f3f4f6}
-      .section-title {display:flex; justify-content:space-between; align-items:center; margin-top:1rem}
-      .actions {display:flex; gap:.5rem; flex-wrap:wrap}
+      :root {
+        --primary: #1e40af;
+        --primary-hover: #1d4ed8;
+        --secondary: #64748b;
+        --accent: #f59e0b;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --text-muted: #94a3b8;
+        --border: #e2e8f0;
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --radius: 12px;
+        --radius-sm: 8px;
+        --radius-lg: 16px;
+      }
+
+      [data-theme="dark"] {
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --secondary: #94a3b8;
+        --accent: #fbbf24;
+        --success: #34d399;
+        --warning: #fbbf24;
+        --error: #f87171;
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --border: #334155;
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+      }
+
+      * {
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      }
+
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+      }
+
+      /* Navigation */
+      nav {
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: var(--shadow);
+      }
+
+      nav ul li strong a {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800;
+        font-size: 1.5rem;
+        text-decoration: none;
+      }
+
+      nav ul li a {
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-sm);
+        transition: all 0.2s ease;
+      }
+
+      nav ul li a:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+
+      /* Theme Toggle */
+      .theme-toggle {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 0.5rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: all 0.2s ease;
+      }
+
+      .theme-toggle:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: var(--shadow);
+        transition: all 0.2s ease;
+      }
+
+      .card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+      }
+
+      /* Grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 1rem 0;
+      }
+
+      /* Typography */
+      h1, h2, h3, h4, h5, h6 {
+        color: var(--text-primary);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .muted {
+        color: var(--text-muted);
+      }
+
+      /* Badges */
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+      }
+
+      .badge.primary {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .badge.success {
+        background: var(--success);
+        color: white;
+        border-color: var(--success);
+      }
+
+      .badge.warning {
+        background: var(--warning);
+        color: white;
+        border-color: var(--warning);
+      }
+
+      .badge.error {
+        background: var(--error);
+        color: white;
+        border-color: var(--error);
+      }
+
+      /* Player Cards */
+      .player-card {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        padding: 1rem;
+        background: var(--bg-tertiary);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        transition: all 0.2s ease;
+      }
+
+      .player-card:hover {
+        background: var(--bg-secondary);
+        transform: translateY(-1px);
+      }
+
+      .player-card img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--bg-primary);
+        border: 2px solid var(--border);
+      }
+
+      /* Buttons */
+      button, input[type="submit"], .btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow);
+      }
+
+      button:hover, input[type="submit"]:hover, .btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      button.secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+      }
+
+      button.secondary:hover {
+        background: var(--bg-secondary);
+      }
+
+      /* Forms */
+      input, select, textarea {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text-primary);
+        padding: 0.75rem;
+        transition: all 0.2s ease;
+      }
+
+      input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+      }
+
+      /* Tables */
+      table {
+        background: var(--bg-primary);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+
+      th {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        font-weight: 600;
+        padding: 1rem;
+      }
+
+      td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      tr:hover {
+        background: var(--bg-secondary);
+      }
+
+      /* Alerts */
+      .alert {
+        padding: 1rem;
+        border-radius: var(--radius);
+        margin: 1rem 0;
+        border-left: 4px solid;
+      }
+
+      .alert-info {
+        background: rgba(59, 130, 246, 0.1);
+        border-left-color: var(--primary);
+        color: var(--text-primary);
+      }
+
+      .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        border-left-color: var(--success);
+        color: var(--text-primary);
+      }
+
+      .alert-warning {
+        background: rgba(245, 158, 11, 0.1);
+        border-left-color: var(--warning);
+        color: var(--text-primary);
+      }
+
+      .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border-left-color: var(--error);
+        color: var(--text-primary);
+      }
+
+      /* Actions */
+      .actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 1.5rem 0 1rem 0;
+      }
+
+      /* Hero Section */
+      .hero {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+        border-radius: var(--radius-lg);
+        margin: 2rem 0;
+        box-shadow: var(--shadow-lg);
+      }
+
+      .hero h1 {
+        color: white;
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+      }
+
+      .hero p {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .hero h1 {
+          font-size: 2rem;
+        }
+        
+        nav ul {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+      }
+
+      /* Loading States */
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
     </style>
   </head>
   <body>
@@ -28,13 +388,18 @@
         <li><a href="{{ url_for('auth.login') }}">Login</a></li>
         <li><a href="{{ url_for('auth.register') }}">Register</a></li>
         <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+            <span id="theme-icon">🌙</span>
+          </button>
+        </li>
       </ul>
     </nav>
     <main class="container">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
-            <article class="{{ category }}">{{ message }}</article>
+            <article class="alert alert-{{ category }} fade-in">{{ message }}</article>
           {% endfor %}
         {% endif %}
       {% endwith %}
@@ -42,9 +407,30 @@
     </main>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
-      const socket = io();
+      window.socket = io();
+      
+      // Theme toggle functionality
+      function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        const icon = document.getElementById('theme-icon');
+        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+      }
+      
+      // Load saved theme
+      document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const icon = document.getElementById('theme-icon');
+        icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      });
     </script>
   </body>
-  </html>
+</html>
 
 

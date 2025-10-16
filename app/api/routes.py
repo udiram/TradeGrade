@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from ..models import Player
-from ..services.players import search_players_cache, NFL_TEAMS, VALID_POSITIONS
+from ..services.players import search_players_cache, NFL_TEAMS, VALID_POSITIONS, TEAM_NICKNAMES
 
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -11,9 +11,27 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 def search_players():
     q = (request.args.get("q") or "").strip()
     query = Player.query
+    
     if q:
-        like = f"%{q}%"
-        query = query.filter(Player.name.ilike(like))
+        q_lower = q.lower()
+        # Enhanced search for defenses with team nicknames
+        from sqlalchemy import or_
+        
+        conditions = [Player.name.ilike(f"%{q}%")]
+        
+        # For defenses, also search by team nicknames
+        for team_abbr, nicknames in TEAM_NICKNAMES.items():
+            if any(q_lower in nickname.lower() for nickname in nicknames):
+                conditions.append(
+                    (Player.team == team_abbr) & (Player.position == 'DEF')
+                )
+        
+        # Also search by team abbreviation
+        if q_lower in [team.lower() for team in NFL_TEAMS]:
+            conditions.append(Player.team == q_lower.upper())
+            
+        query = query.filter(or_(*conditions))
+    
     # Restrict to active NFL-shaped entries in DB
     db_players = (
         query.filter(

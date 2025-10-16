@@ -11,6 +11,42 @@ NFL_TEAMS = {
 }
 VALID_POSITIONS = {"QB", "RB", "WR", "TE", "K", "DEF"}
 
+# Team nickname mappings for better search
+TEAM_NICKNAMES = {
+    "ARI": ["cardinals", "arizona"],
+    "ATL": ["falcons", "atlanta"],
+    "BAL": ["ravens", "baltimore"],
+    "BUF": ["bills", "buffalo"],
+    "CAR": ["panthers", "carolina"],
+    "CHI": ["bears", "chicago"],
+    "CIN": ["bengals", "cincinnati"],
+    "CLE": ["browns", "cleveland"],
+    "DAL": ["cowboys", "dallas"],
+    "DEN": ["broncos", "denver"],
+    "DET": ["lions", "detroit"],
+    "GB": ["packers", "green bay"],
+    "HOU": ["texans", "houston"],
+    "IND": ["colts", "indianapolis"],
+    "JAX": ["jaguars", "jacksonville"],
+    "KC": ["chiefs", "kansas city"],
+    "LV": ["raiders", "las vegas", "oakland"],
+    "LAC": ["chargers", "los angeles"],
+    "LAR": ["rams", "los angeles"],
+    "MIA": ["dolphins", "miami"],
+    "MIN": ["vikings", "minnesota"],
+    "NE": ["patriots", "new england"],
+    "NO": ["saints", "new orleans"],
+    "NYG": ["giants", "new york"],
+    "NYJ": ["jets", "new york"],
+    "PHI": ["eagles", "philadelphia"],
+    "PIT": ["steelers", "pittsburgh"],
+    "SEA": ["seahawks", "seattle"],
+    "SF": ["49ers", "niners", "san francisco"],
+    "TB": ["buccaneers", "bucs", "tampa bay"],
+    "TEN": ["titans", "tennessee"],
+    "WAS": ["commanders", "washington", "redskins"]
+}
+
 
 def is_active_nfl_player(p: Dict) -> bool:
     # Sleeper fields: active(bool), team (abbr), position
@@ -72,7 +108,29 @@ def search_players_cache(query: str, limit: int = 20) -> List[Dict]:
     if not query:
         return []
     q = query.lower()
-    results = [p for p in (_players_cache or []) if q in (p.get("name") or "").lower()]
+    results = []
+    
+    for p in (_players_cache or []):
+        name = (p.get("name") or "").lower()
+        team = p.get("team", "")
+        position = p.get("position", "")
+        
+        # Check if query matches name
+        if q in name:
+            results.append(p)
+            continue
+            
+        # For defenses, also check team nicknames
+        if position == "DEF" and team in TEAM_NICKNAMES:
+            nicknames = TEAM_NICKNAMES[team]
+            if any(q in nickname.lower() for nickname in nicknames):
+                results.append(p)
+                continue
+                
+        # Check if query matches team abbreviation
+        if q == team.lower():
+            results.append(p)
+    
     return results[:limit]
 
 

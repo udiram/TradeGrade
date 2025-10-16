@@ -27,13 +27,16 @@ def analyze_sentiment(texts: List[str]) -> Dict:
 
 def stream_sentiment_events(socketio, room: str, players: List[str]) -> None:
     # Emits periodic updates with random fluctuations
-    for _ in range(5):
+    print(f"Starting sentiment stream for room {room} with players {players}")
+    for i in range(5):
         updates = []
         for name in players:
             headlines = fetch_headlines_for_player(name)
             sent = analyze_sentiment(headlines)
             updates.append({"player": name, "sentiment": sent, "headlines": headlines[:2]})
+        print(f"Emitting sentiment update {i+1}/5 to room {room}: {updates}")
         socketio.emit("sentiment_update", {"updates": updates}, room=room)
         time.sleep(2)
+    print(f"Sentiment stream completed for room {room}")
 
 

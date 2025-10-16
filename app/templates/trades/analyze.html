@@ -2,14 +2,98 @@
 {% block title %}Trade Analysis - TradeGrade{% endblock %}
 {% block content %}
 <h3>Trade Analysis</h3>
-<form method="post">
-  <label>Players you trade away (comma separated)
-    <input type="text" name="offered">
-  </label>
-  <label>Players you receive (comma separated)
-    <input type="text" name="requested">
-  </label>
+<form method="post" id="trade-form">
+  <article class="card">
+    <h5>Players you trade away</h5>
+    <p class="muted">Select from your roster</p>
+    <div class="grid">
+      {% for p in roster_players %}
+        <label style="display:flex;align-items:center;gap:.5rem">
+          <input type="checkbox" name="offered_ids" value="{{ p.id }}">
+          <span>{{ p.name }}</span>
+          <span class="badge">{{ p.position }}</span>
+          <span class="muted">{{ p.team }}</span>
+        </label>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="card">
+    <h5>Players you receive</h5>
+    <p class="muted">Search and add players (autocomplete)</p>
+    <div id="requested-list" class="actions"></div>
+    <div class="actions">
+      <input type="text" id="player-search" placeholder="Search players...">
+      <button id="add-player" type="button">Add</button>
+    </div>
+    <div id="player_suggestions" style="margin-top: 0.5rem;"></div>
+    <input type="hidden" name="requested_ids" id="requested-ids" value="">
+  </article>
+
   <button type="submit">Analyze</button>
+  
 </form>
+
+<script>
+  const input = document.getElementById('player-search');
+  const addBtn = document.getElementById('add-player');
+  const list = document.getElementById('requested-list');
+  const hidden = document.getElementById('requested-ids');
+  const sug = document.getElementById('player_suggestions');
+  let timer;
+
+  function syncHidden() {
+    const ids = Array.from(list.querySelectorAll('[data-id]')).map(n => n.dataset.id);
+    hidden.value = ids.join(',');
+  }
+
+  // Autocomplete as you type (same as roster page)
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (!q) { sug.innerHTML = ''; return; }
+    timer = setTimeout(async () => {
+      const res = await fetch(`/api/players?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      // Only allow DB-backed players (id present)
+      const onlyDb = data.filter(p => p.id);
+      sug.innerHTML = onlyDb.map(p => `<a href="#" data-id="${p.id}" data-name="${p.name}" data-pos="${p.position||''}" data-team="${p.team||''}">${p.name} ${p.position?('('+p.position+')'):''} ${p.team||''}</a>`).join('<br>');
+      Array.from(sug.querySelectorAll('a')).forEach(a => a.addEventListener('click', (e) => {
+        e.preventDefault();
+        addPlayerToRequested(a.dataset.id, a.dataset.name, a.dataset.pos, a.dataset.team);
+        input.value = '';
+        sug.innerHTML = '';
+      }));
+    }, 200);
+  });
+
+  function addPlayerToRequested(id, name, pos, team) {
+    // avoid duplicates
+    if (list.querySelector(`[data-id="${id}"]`)) return;
+    const chip = document.createElement('span');
+    chip.className = 'badge';
+    chip.dataset.id = id;
+    chip.textContent = `${name} · ${pos}`;
+    chip.style.cursor = 'pointer';
+    chip.title = 'Click to remove';
+    chip.addEventListener('click', () => { chip.remove(); syncHidden(); });
+    list.appendChild(chip);
+    syncHidden();
+  }
+
+  // Keep the Add button for manual addition
+  addBtn.addEventListener('click', async () => {
+    const q = input.value.trim();
+    if (!q) return;
+    const res = await fetch(`/api/players?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    if (!data || !data.length) return;
+    const p = data[0];
+    if (!p.id) return; // Only DB-backed players
+    addPlayerToRequested(p.id, p.name, p.position, p.team);
+    input.value = '';
+    sug.innerHTML = '';
+  });
+</script>
 {% endblock %}
 

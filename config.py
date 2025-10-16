@@ -1,4 +1,8 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class Config:
@@ -9,6 +13,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Optional external APIs for analysis/sentiment
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
     NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
     TWITTER_BEARER_TOKEN = os.environ.get("TWITTER_BEARER_TOKEN")

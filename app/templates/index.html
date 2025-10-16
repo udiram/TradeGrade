@@ -2,26 +2,64 @@
 {% block title %}Home - TradeGrade{% endblock %}
 {% block content %}
 <header class="hero">
-  <h2>TradeGrade: Fantasy insights, fast.</h2>
-  <p class="muted">Smart trade evaluations, sit/start calls, and live sentiment—per league.</p>
-  <p>
-    <a href="{{ url_for('auth.register') }}" role="button">Get Started</a>
-    <a href="{{ url_for('league.dashboard') }}" role="button" class="secondary">Go to Dashboard</a>
-  </p>
+  <h1>TradeGrade</h1>
+  <p>Advanced fantasy football analytics with AI-powered insights</p>
+  <div class="actions">
+    <a href="{{ url_for('auth.register') }}" role="button" class="btn">Get Started</a>
+    <a href="{{ url_for('league.dashboard') }}" role="button" class="btn secondary">Dashboard</a>
+  </div>
 </header>
 
 <div class="grid">
-  <div class="card">
-    <h4>Trade Analysis</h4>
-    <p>Quantify value swings and see real-time sentiment for everyone involved.</p>
-  </div>
-  <div class="card">
-    <h4>Sit/Start</h4>
-    <p>Numbers + matchup context to decide who belongs in your lineup this week.</p>
-  </div>
-  <div class="card">
-    <h4>League Board</h4>
-    <p>Keep a pulse on your league's market: needs, offers, and ideas.</p>
+  <article class="card">
+    <h4>📊 Trade Analysis</h4>
+    <p>AI-powered trade evaluations with comprehensive metrics, position analysis, and real-time market sentiment.</p>
+    <ul>
+      <li>Value delta calculations</li>
+      <li>Risk & upside analysis</li>
+      <li>Position breakdowns</li>
+      <li>Live sentiment streaming</li>
+    </ul>
+  </article>
+  
+  <article class="card">
+    <h4>🎯 Sit/Start Decisions</h4>
+    <p>Smart lineup decisions based on bench alternatives, matchup context, and statistical projections.</p>
+    <ul>
+      <li>Bench comparison analysis</li>
+      <li>Position scarcity detection</li>
+      <li>Monte Carlo simulations</li>
+      <li>LLM-powered recommendations</li>
+    </ul>
+  </article>
+  
+  <article class="card">
+    <h4>💬 League Board</h4>
+    <p>Private league communication hub for trade discussions and market insights.</p>
+    <ul>
+      <li>League-specific posts</li>
+      <li>Trade requests</li>
+      <li>Market discussions</li>
+      <li>Real-time updates</li>
+    </ul>
+  </article>
+</div>
+
+<div class="card">
+  <h3>Why TradeGrade?</h3>
+  <div class="grid">
+    <div>
+      <h5>🚀 Fast & Accurate</h5>
+      <p>Get instant analysis with comprehensive data aggregation and AI insights.</p>
+    </div>
+    <div>
+      <h5>🎨 Modern Design</h5>
+      <p>Beautiful, responsive interface with dark mode support for comfortable viewing.</p>
+    </div>
+    <div>
+      <h5>📱 Mobile Ready</h5>
+      <p>Optimized for all devices - analyze trades and make decisions on the go.</p>
+    </div>
   </div>
 </div>
 {% endblock %}
