@@ -95,7 +95,9 @@ def run_startup_tasks(app: Flask) -> None:
             print(f"Player sync complete: {removed} removed, {added} added")
             
         except Exception as e:
-            # Tables don't exist yet, skip startup tasks
-            print(f"Tables not ready, skipping startup tasks: {e}")
+            # Tables don't exist yet, skip startup tasks silently
+            # Only print in debug mode to avoid cluttering logs
+            if app.debug:
+                print(f"Tables not ready, skipping startup tasks: {e}")
             pass
 
