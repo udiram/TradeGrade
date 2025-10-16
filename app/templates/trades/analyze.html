@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Trade Analysis - TradeGrade{% endblock %}
+{% block content %}
+<h3>Trade Analysis</h3>
+<form method="post">
+  <label>Players you trade away (comma separated)
+    <input type="text" name="offered">
+  </label>
+  <label>Players you receive (comma separated)
+    <input type="text" name="requested">
+  </label>
+  <button type="submit">Analyze</button>
+</form>
+{% endblock %}
+

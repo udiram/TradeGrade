@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Home - TradeGrade{% endblock %}
+{% block content %}
+<header class="hero">
+  <h2>TradeGrade: Fantasy insights, fast.</h2>
+  <p class="muted">Smart trade evaluations, sit/start calls, and live sentiment—per league.</p>
+  <p>
+    <a href="{{ url_for('auth.register') }}" role="button">Get Started</a>
+    <a href="{{ url_for('league.dashboard') }}" role="button" class="secondary">Go to Dashboard</a>
+  </p>
+</header>
+
+<div class="grid">
+  <div class="card">
+    <h4>Trade Analysis</h4>
+    <p>Quantify value swings and see real-time sentiment for everyone involved.</p>
+  </div>
+  <div class="card">
+    <h4>Sit/Start</h4>
+    <p>Numbers + matchup context to decide who belongs in your lineup this week.</p>
+  </div>
+  <div class="card">
+    <h4>League Board</h4>
+    <p>Keep a pulse on your league's market: needs, offers, and ideas.</p>
+  </div>
+</div>
+{% endblock %}
+

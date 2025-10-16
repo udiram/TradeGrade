@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}New Post - TradeGrade{% endblock %}
+{% block content %}
+<h3>New Post</h3>
+<form method="post">
+  <label>Title <input type="text" name="title" required></label>
+  <label>Body <textarea name="body" required></textarea></label>
+  <button type="submit">Publish</button>
+</form>
+{% endblock %}
+

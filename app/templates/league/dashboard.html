@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - TradeGrade{% endblock %}
+{% block content %}
+<h3>Your Leagues</h3>
+<p>
+  <a href="{{ url_for('league.create') }}">Create League</a> |
+  <a href="{{ url_for('league.join') }}">Join League</a>
+  </p>
+<table>
+  <thead><tr><th>Name</th><th>Invite Code</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for m in memberships %}
+      <tr>
+        <td>{{ m.league.name }}</td>
+        <td>{{ m.league.invite_code }}</td>
+        <td>
+          <a href="{{ url_for('roster.view', league_id=m.league_id) }}">Roster</a> |
+          <a href="{{ url_for('trades.analyze', league_id=m.league_id) }}">Trade Analysis</a> |
+          <a href="{{ url_for('board.list_posts', league_id=m.league_id) }}">Community Board</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+

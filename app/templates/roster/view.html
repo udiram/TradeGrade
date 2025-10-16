@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Roster - TradeGrade{% endblock %}
+{% block content %}
+<div class="section-title">
+  <h3>Your Roster</h3>
+  <span class="badge">Roster</span>
+  </div>
+<form method="post" action="{{ url_for('roster.add_player', league_id=league_id) }}" class="card">
+  <input type="hidden" name="player_id" id="player_id">
+  <label>Player Name
+    <input type="text" id="player_name" required placeholder="Search players..." autocomplete="off">
+  </label>
+  <div id="player_suggestions" class="muted"></div>
+  <div class="grid">
+    <label>Position <input type="text" id="position" disabled></label>
+    <label>Team <input type="text" id="team" disabled></label>
+  </div>
+  <button type="submit">Add Player</button>
+</form>
+
+{% set starters = entries|selectattr('is_starter')|list %}
+{% set bench = entries|rejectattr('is_starter')|list %}
+
+<div class="grid">
+  <div class="card">
+    <div class="section-title"><h4>Starters</h4><span class="badge">{{ starters|length }}</span></div>
+    {% for e in starters %}
+      <div class="player-card">
+        <img src="https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827" alt="{{ e.player.name }}">
+        <div style="flex:1;">
+          <strong>{{ e.player.name }}</strong>
+          <div class="muted">{{ e.player.position }} • {{ e.player.team }}</div>
+        </div>
+        <div class="actions">
+          <form method="post" action="{{ url_for('roster.toggle_starter', league_id=league_id, entry_id=e.id) }}">
+            <button type="submit" class="secondary">Bench</button>
+          </form>
+          <a href="{{ url_for('roster.sit_start', league_id=league_id, player_id=e.player_id) }}">Sit/Start</a>
+          <form method="post" action="{{ url_for('roster.remove_player', league_id=league_id, entry_id=e.id) }}">
+            <button type="submit" class="secondary">Remove</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <p class="muted">No starters set.</p>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <div class="section-title"><h4>Bench</h4><span class="badge">{{ bench|length }}</span></div>
+    {% for e in bench %}
+      <div class="player-card">
+        <img src="https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827" alt="{{ e.player.name }}">
+        <div style="flex:1;">
+          <strong>{{ e.player.name }}</strong>
+          <div class="muted">{{ e.player.position }} • {{ e.player.team }}</div>
+        </div>
+        <div class="actions">
+          <form method="post" action="{{ url_for('roster.toggle_starter', league_id=league_id, entry_id=e.id) }}">
+            <button type="submit">Start</button>
+          </form>
+          <a href="{{ url_for('roster.sit_start', league_id=league_id, player_id=e.player_id) }}">Sit/Start</a>
+          <form method="post" action="{{ url_for('roster.remove_player', league_id=league_id, entry_id=e.id) }}">
+            <button type="submit" class="secondary">Remove</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <p class="muted">No bench players.</p>
+    {% endfor %}
+  </div>
+</div>
+<script>
+  const nameInput = document.getElementById('player_name');
+  const posInput = document.getElementById('position');
+  const teamInput = document.getElementById('team');
+  const idInput = document.getElementById('player_id');
+  const sug = document.getElementById('player_suggestions');
+  let timer;
+  nameInput.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = nameInput.value.trim();
+    if (!q){ sug.innerHTML = ''; return; }
+    timer = setTimeout(async () => {
+      const res = await fetch(`/api/players?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      // Only allow DB-backed players (id present)
+      const onlyDb = data.filter(p => p.id);
+      sug.innerHTML = onlyDb.map(p => `<a href="#" data-id="${p.id}" data-name="${p.name}" data-pos="${p.position||''}" data-team="${p.team||''}">${p.name} ${p.position?('('+p.position+')'):''} ${p.team||''}</a>`).join('<br>');
+      Array.from(sug.querySelectorAll('a')).forEach(a => a.addEventListener('click', (e) => {
+        e.preventDefault();
+        nameInput.value = a.dataset.name;
+        posInput.value = a.dataset.pos;
+        teamInput.value = a.dataset.team;
+        idInput.value = a.dataset.id;
+        sug.innerHTML = '';
+      }));
+    }, 200);
+  });
+  document.addEventListener('click', (e)=>{ if (!sug.contains(e.target) && e.target!==nameInput) sug.innerHTML=''; });
+</script>
+{% endblock %}
+

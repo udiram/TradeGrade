@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Register - TradeGrade{% endblock %}
+{% block content %}
+<h3>Register</h3>
+<form method="post" class="card">
+  <label>Display Name <input type="text" name="display_name" required placeholder="Pat Mahomes"></label>
+  <label>Email <input type="email" name="email" required placeholder="you@example.com"></label>
+  <label>Password <input type="password" name="password" required placeholder="••••••••"></label>
+  <div>
+    <button type="submit">Create Account</button>
+    <a href="#" role="button" class="secondary" onclick="demoFill(event)">Use Demo Data</a>
+  </div>
+  <p class="muted">Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+</form>
+<script>
+  function demoFill(e){
+    e.preventDefault();
+    const form = document.querySelector('form');
+    form.querySelector('input[name="display_name"]').value = 'Demo User';
+    form.querySelector('input[name="email"]').value = 'demo@tradegrade.dev';
+    form.querySelector('input[name="password"]').value = 'demo-demo';
+  }
+</script>
+{% endblock %}
+

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Trade Result - TradeGrade{% endblock %}
+{% block content %}
+<h3>Trade Result</h3>
+<p><strong>Offered:</strong> {% for p in offered %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+<p><strong>Requested:</strong> {% for p in requested %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+{% if trade.numeric_score %}
+  <p><strong>Score:</strong> {{ trade.numeric_score }}</p>
+{% endif %}
+{% if trade.summary %}
+  <article>{{ trade.summary }}</article>
+{% endif %}
+{% if trade.recommendation %}
+  <p><strong>Recommendation:</strong> {{ trade.recommendation }}</p>
+{% else %}
+  <p>Analysis pending...</p>
+{% endif %}
+<hr>
+<h4>Live Sentiment</h4>
+<div id="sentiment"></div>
+<script>
+  const room = 'trade-{{ trade.id }}';
+  const sdiv = document.getElementById('sentiment');
+  if (window.socket) {
+    socket.emit('join', { room });
+    socket.on('sentiment_update', (payload) => {
+      const { updates } = payload;
+      const html = updates.map(u => `<p><b>${u.player}</b>: ${u.sentiment.label} (${u.sentiment.score})</p>`).join('');
+      sdiv.innerHTML = html;
+    });
+  }
+  window.addEventListener('beforeunload', () => { if (window.socket) socket.emit('leave', { room }); });
+  window.socket = socket;
+  
+</script>
+{% endblock %}
+
