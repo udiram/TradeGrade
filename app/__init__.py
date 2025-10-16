@@ -77,7 +77,6 @@ def register_routes(app: Flask) -> None:
 
 def run_startup_tasks(app: Flask) -> None:
     with app.app_context():
-        from .seed import seed_players_if_empty
         from .services.players import warm_players_cache, sync_active_players_into_db, purge_non_nfl_players
         from .models import Player
         
@@ -89,8 +88,4 @@ def run_startup_tasks(app: Flask) -> None:
         removed = purge_non_nfl_players(db, Player)
         added = sync_active_players_into_db(db, Player)
         print(f"Player sync complete: {removed} removed, {added} added")
-        
-        # Fallback to sample players if no players exist
-        seed_players_if_empty()
-
 
