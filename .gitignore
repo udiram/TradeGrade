@@ -208,6 +208,7 @@ __marimo__/
 
 
 # flask migrations
+instance/
 migrations/
 alembic.ini
 app.db
