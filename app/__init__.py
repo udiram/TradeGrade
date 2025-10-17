@@ -69,6 +69,10 @@ def register_routes(app: Flask) -> None:
     def health_check():
         return {"status": "healthy", "message": "TradeGrade is running!"}
 
+    @app.route("/examples")
+    def examples():
+        return render_template("examples.html")
+
     # Add custom Jinja2 filters
     @app.template_filter('from_json')
     def from_json_filter(json_string):
