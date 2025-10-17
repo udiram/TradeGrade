@@ -69,6 +69,18 @@ def register_routes(app: Flask) -> None:
     def health_check():
         return {"status": "healthy", "message": "TradeGrade is running!"}
 
+    # Add custom Jinja2 filters
+    @app.template_filter('from_json')
+    def from_json_filter(json_string):
+        """Parse JSON string to Python object"""
+        if not json_string:
+            return None
+        try:
+            import json
+            return json.loads(json_string)
+        except (json.JSONDecodeError, TypeError):
+            return None
+
     @socketio.on('join')
     def on_join(data):
         room = data.get('room')
