@@ -9,6 +9,13 @@ def create_app() -> Flask:
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object(Config)
 
+    # Initialize PyMySQL for MySQL support
+    try:
+        import pymysql
+        pymysql.install_as_MySQLdb()
+    except ImportError:
+        pass  # PyMySQL not available, might be using SQLite
+
     register_extensions(app)
     register_blueprints(app)
     register_routes(app)

@@ -49,7 +49,7 @@ class ProductionConfig(Config):
     # Railway uses DATABASE_URL, but also check for other common names
     SQLALCHEMY_DATABASE_URI = (
         os.environ.get("DATABASE_URL") or 
-        os.environ.get("POSTGRES_URL") or 
+        os.environ.get("MYSQL_URL") or 
         os.environ.get("SQLALCHEMY_DATABASE_URI")
     )
     

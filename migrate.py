@@ -15,6 +15,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'app'))
 def run_migrations():
     """Run database migrations"""
     try:
+        # Import PyMySQL to ensure it's available for MySQL
+        import pymysql
+        pymysql.install_as_MySQLdb()
+        
         # Import the app factory
         from app import create_app
         
