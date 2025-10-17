@@ -85,6 +85,7 @@
     <div class="trade-analysis">
       <h4>Trade Analysis</h4>
       {% if analysis_data and not analysis_data.get('error') %}
+        <!-- Main Analysis Summary -->
         <div class="analysis-summary">
           <div class="analysis-score">
             <span class="score-label">Trade Score</span>
@@ -96,12 +97,116 @@
               {{ analysis_data.get('recommendation', 'Unknown') }}
             </span>
           </div>
+          <div class="confidence-score">
+            <span class="confidence-label">Confidence</span>
+            <span class="confidence-value">{{ analysis_data.get('confidence_score', 50) }}%</span>
+          </div>
         </div>
+
+        <!-- Trade Overview -->
+        {% if analysis_data.get('trade_overview') %}
+        <div class="analysis-section">
+          <h5>📊 Trade Overview</h5>
+          <div class="overview-grid">
+            <div class="overview-item">
+              <span class="overview-label">Players Offered</span>
+              <span class="overview-value">{{ analysis_data.trade_overview.total_players_offered }}</span>
+            </div>
+            <div class="overview-item">
+              <span class="overview-label">Players Requested</span>
+              <span class="overview-value">{{ analysis_data.trade_overview.total_players_requested }}</span>
+            </div>
+            <div class="overview-item">
+              <span class="overview-label">Value per Player (Offered)</span>
+              <span class="overview-value">{{ "%.1f"|format(analysis_data.trade_overview.value_per_player_offered) }}</span>
+            </div>
+            <div class="overview-item">
+              <span class="overview-label">Value per Player (Requested)</span>
+              <span class="overview-value">{{ "%.1f"|format(analysis_data.trade_overview.value_per_player_requested) }}</span>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Position Analysis -->
+        {% if analysis_data.get('position_analysis') and analysis_data.position_analysis.get('balance') %}
+        <div class="analysis-section">
+          <h5>🏈 Position Impact</h5>
+          <div class="position-grid">
+            {% for pos, balance in analysis_data.position_analysis.balance.items() %}
+              {% if balance.net_change != 0 %}
+              <div class="position-item">
+                <span class="position-name">{{ pos }}</span>
+                <span class="position-change {{ balance.balance_status }}">
+                  {{ balance.balance_status }} {{ balance.net_change|abs }} player(s)
+                </span>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Risk Analysis -->
+        {% if analysis_data.get('risk_analysis') and analysis_data.risk_analysis.get('risk_assessment') %}
+        <div class="analysis-section">
+          <h5>⚠️ Risk Assessment</h5>
+          <div class="risk-grid">
+            <div class="risk-item">
+              <span class="risk-label">Risk Profile</span>
+              <span class="risk-value {{ analysis_data.risk_analysis.risk_assessment }}">
+                {{ analysis_data.risk_analysis.risk_assessment.replace('_', ' ').title() }}
+              </span>
+            </div>
+            {% if analysis_data.risk_analysis.get('high_risk_players', {}).get('requested') %}
+            <div class="risk-item">
+              <span class="risk-label">High-Risk Players</span>
+              <span class="risk-value">{{ analysis_data.risk_analysis.high_risk_players.requested|join(', ') }}</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Upside Analysis -->
+        {% if analysis_data.get('upside_analysis') and analysis_data.upside_analysis.get('upside_potential') %}
+        <div class="analysis-section">
+          <h5>🚀 Upside Potential</h5>
+          <div class="upside-grid">
+            <div class="upside-item">
+              <span class="upside-label">Upside Assessment</span>
+              <span class="upside-value {{ analysis_data.upside_analysis.upside_potential.upside_assessment }}">
+                {{ analysis_data.upside_analysis.upside_potential.upside_assessment.replace('_', ' ').title() }}
+              </span>
+            </div>
+            <div class="upside-item">
+              <span class="upside-label">Projection Trend</span>
+              <span class="upside-value">{{ analysis_data.upside_analysis.upside_potential.projection_change.upside_trend.title() }}</span>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Key Factors -->
+        {% if analysis_data.get('key_factors') %}
+        <div class="analysis-section">
+          <h5>🔑 Key Factors</h5>
+          <ul class="key-factors">
+            {% for factor in analysis_data.key_factors %}
+            <li>{{ factor }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <!-- Comprehensive Summary -->
         {% if analysis_data.get('summary') %}
           <div class="analysis-text">
-            <p>{{ analysis_data.summary }}</p>
+            <h5>📋 Analysis Summary</h5>
+            <div class="summary-content">{{ analysis_data.summary|replace('\n', '<br>')|safe }}</div>
           </div>
         {% endif %}
+
       {% else %}
         <div class="analysis-error">
           <p><strong>Analysis Status:</strong> 
@@ -400,13 +505,14 @@
 
 .analysis-summary {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
 .analysis-score,
-.analysis-recommendation {
+.analysis-recommendation,
+.confidence-score {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -418,14 +524,16 @@
 }
 
 .score-label,
-.recommendation-label {
+.recommendation-label,
+.confidence-label {
   font-size: 0.75rem;
   color: var(--muted-color);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.score-value {
+.score-value,
+.confidence-value {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-color);
@@ -466,6 +574,172 @@
   margin: 0;
   color: var(--text-color);
   line-height: 1.5;
+}
+
+/* Enhanced Analysis Sections */
+.analysis-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--secondary-background);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+.analysis-section h5 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.overview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.overview-label {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.overview-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.position-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.position-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.position-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.position-change {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.position-change.gaining {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.position-change.losing {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.risk-grid,
+.upside-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.risk-item,
+.upside-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.risk-label,
+.upside-label {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.risk-value,
+.upside-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.risk-value.higher_risk {
+  color: #dc2626;
+}
+
+.risk-value.lower_risk {
+  color: #059669;
+}
+
+.risk-value.similar_risk {
+  color: var(--muted-color);
+}
+
+.upside-value.higher_upside {
+  color: #059669;
+}
+
+.upside-value.lower_upside {
+  color: #dc2626;
+}
+
+.upside-value.similar_upside {
+  color: var(--muted-color);
+}
+
+.key-factors {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--text-color);
+}
+
+.key-factors li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.summary-content {
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 .analysis-error {
@@ -603,6 +877,19 @@
   }
   
   .analysis-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .position-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+  
+  .risk-grid,
+  .upside-grid {
     grid-template-columns: 1fr;
   }
   

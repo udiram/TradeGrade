@@ -189,30 +189,88 @@ def analyze_trade(offered: List[Dict], requested: List[Dict]) -> Dict:
             "confidence": 75
         }
     
+    # Enhanced analysis metrics
+    total_players_offered = len(offered)
+    total_players_requested = len(requested)
+    
+    # Position balance analysis
+    position_balance = analyze_position_balance(offered, requested)
+    
+    # Depth analysis
+    depth_analysis = analyze_trade_depth(offered, requested)
+    
+    # Value distribution analysis
+    value_distribution = analyze_value_distribution(offered, requested, off_metrics, req_metrics)
+    
+    # Risk assessment
+    risk_assessment = analyze_trade_risk(off_metrics, req_metrics)
+    
+    # Upside potential
+    upside_potential = analyze_upside_potential(off_metrics, req_metrics)
+    
+    # Trade impact analysis
+    trade_impact = analyze_trade_impact(offered, requested, delta)
+    
+    # Generate comprehensive summary
+    comprehensive_summary = generate_comprehensive_summary(
+        offered, requested, delta, recommendation, 
+        position_balance, depth_analysis, risk_assessment, upside_potential
+    )
+
     return {
+        # Basic metrics
         "offered_table": df_off.to_dict(orient="records"),
         "requested_table": df_req.to_dict(orient="records"),
         "offered_total": round(total_off, 2),
         "requested_total": round(total_req, 2),
         "delta": round(delta, 2),
-        "numeric_score": round(delta, 2),  # For template compatibility
+        "numeric_score": round(delta, 2),
         "recommendation": recommendation,
-        "summary": ai_summary.get("summary", f"Trade analysis: {recommendation.title()} recommendation with {delta:+.1f} point difference."),
+        
+        # Enhanced analysis
+        "summary": comprehensive_summary,
+        "ai_summary": ai_summary,
+        
+        # Detailed metrics
+        "trade_overview": {
+            "total_players_offered": total_players_offered,
+            "total_players_requested": total_players_requested,
+            "player_count_difference": total_players_requested - total_players_offered,
+            "value_per_player_offered": round(total_off / total_players_offered, 2) if total_players_offered > 0 else 0,
+            "value_per_player_requested": round(total_req / total_players_requested, 2) if total_players_requested > 0 else 0,
+        },
+        
+        # Position analysis
         "position_analysis": {
             "offered": off_positions,
             "requested": req_positions,
+            "balance": position_balance,
         },
+        
+        # Risk analysis
         "risk_analysis": {
             "offered_avg_risk": round(off_risk, 3),
             "requested_avg_risk": round(req_risk, 3),
             "risk_delta": round(risk_delta, 3),
+            "risk_assessment": risk_assessment,
         },
+        
+        # Upside analysis
         "upside_analysis": {
             "offered_avg_projection": round(off_upside, 2),
             "requested_avg_projection": round(req_upside, 2),
             "upside_delta": round(upside_delta, 2),
+            "upside_potential": upside_potential,
         },
-        "ai_summary": ai_summary,
+        
+        # Additional insights
+        "depth_analysis": depth_analysis,
+        "value_distribution": value_distribution,
+        "trade_impact": trade_impact,
+        
+        # Confidence and reasoning
+        "confidence_score": calculate_confidence_score(delta, total_off, total_req, len(offered), len(requested)),
+        "key_factors": identify_key_factors(delta, position_balance, risk_assessment, upside_potential),
     }
 
 
@@ -553,5 +611,258 @@ Focus on practical fantasy football implications, roster construction, and long-
         "confidence": 50,
         "error": last_err
     }
+
+
+# Enhanced Trade Analysis Functions
+
+def analyze_position_balance(offered: List[Dict], requested: List[Dict]) -> Dict:
+    """Analyze position balance in the trade."""
+    offered_positions = {}
+    requested_positions = {}
+    
+    for player in offered:
+        pos = player.get('position', 'UNKNOWN')
+        offered_positions[pos] = offered_positions.get(pos, 0) + 1
+    
+    for player in requested:
+        pos = player.get('position', 'UNKNOWN')
+        requested_positions[pos] = requested_positions.get(pos, 0) + 1
+    
+    # Calculate position balance
+    all_positions = set(offered_positions.keys()) | set(requested_positions.keys())
+    position_balance = {}
+    
+    for pos in all_positions:
+        offered_count = offered_positions.get(pos, 0)
+        requested_count = requested_positions.get(pos, 0)
+        balance = requested_count - offered_count
+        
+        position_balance[pos] = {
+            "offered": offered_count,
+            "requested": requested_count,
+            "net_change": balance,
+            "balance_status": "gaining" if balance > 0 else "losing" if balance < 0 else "neutral"
+        }
+    
+    return position_balance
+
+
+def analyze_trade_depth(offered: List[Dict], requested: List[Dict]) -> Dict:
+    """Analyze the depth impact of the trade."""
+    return {
+        "roster_size_change": len(requested) - len(offered),
+        "depth_impact": "improving" if len(requested) > len(offered) else "reducing" if len(requested) < len(offered) else "neutral",
+        "bench_impact": "positive" if len(requested) > len(offered) else "negative" if len(requested) < len(offered) else "neutral",
+        "flexibility_change": "increased" if len(requested) > len(offered) else "decreased" if len(requested) < len(offered) else "unchanged"
+    }
+
+
+def analyze_value_distribution(offered: List[Dict], requested: List[Dict], off_metrics: List[PlayerMetrics], req_metrics: List[PlayerMetrics]) -> Dict:
+    """Analyze how value is distributed in the trade."""
+    if not off_metrics or not req_metrics:
+        return {"error": "No metrics available"}
+    
+    off_values = [_value_from_metrics(m) for m in off_metrics]
+    req_values = [_value_from_metrics(m) for m in req_metrics]
+    
+    return {
+        "offered_value_range": {
+            "min": min(off_values),
+            "max": max(off_values),
+            "avg": sum(off_values) / len(off_values),
+            "std_dev": _calculate_std_dev(off_values)
+        },
+        "requested_value_range": {
+            "min": min(req_values),
+            "max": max(req_values),
+            "avg": sum(req_values) / len(req_values),
+            "std_dev": _calculate_std_dev(req_values)
+        },
+        "value_consistency": {
+            "offered_consistency": "high" if _calculate_std_dev(off_values) < 2 else "medium" if _calculate_std_dev(off_values) < 4 else "low",
+            "requested_consistency": "high" if _calculate_std_dev(req_values) < 2 else "medium" if _calculate_std_dev(req_values) < 4 else "low"
+        }
+    }
+
+
+def analyze_trade_risk(off_metrics: List[PlayerMetrics], req_metrics: List[PlayerMetrics]) -> Dict:
+    """Analyze risk factors in the trade."""
+    if not off_metrics or not req_metrics:
+        return {"error": "No metrics available"}
+    
+    off_risks = [m.injury_risk for m in off_metrics]
+    req_risks = [m.injury_risk for m in req_metrics]
+    
+    return {
+        "injury_risk_change": {
+            "offered_avg_risk": sum(off_risks) / len(off_risks),
+            "requested_avg_risk": sum(req_risks) / len(req_risks),
+            "risk_delta": (sum(req_risks) / len(req_risks)) - (sum(off_risks) / len(off_risks)),
+            "risk_trend": "increasing" if (sum(req_risks) / len(req_risks)) > (sum(off_risks) / len(off_risks)) else "decreasing"
+        },
+        "high_risk_players": {
+            "offered": [m.name for m in off_metrics if m.injury_risk > 0.3],
+            "requested": [m.name for m in req_metrics if m.injury_risk > 0.3]
+        },
+        "risk_assessment": "higher_risk" if (sum(req_risks) / len(req_risks)) > (sum(off_risks) / len(off_risks)) + 0.1 else "lower_risk" if (sum(req_risks) / len(req_risks)) < (sum(off_risks) / len(off_risks)) - 0.1 else "similar_risk"
+    }
+
+
+def analyze_upside_potential(off_metrics: List[PlayerMetrics], req_metrics: List[PlayerMetrics]) -> Dict:
+    """Analyze upside potential in the trade."""
+    if not off_metrics or not req_metrics:
+        return {"error": "No metrics available"}
+    
+    off_projections = [m.projected_points for m in off_metrics]
+    req_projections = [m.projected_points for m in req_metrics]
+    
+    return {
+        "projection_change": {
+            "offered_avg_projection": sum(off_projections) / len(off_projections),
+            "requested_avg_projection": sum(req_projections) / len(req_projections),
+            "projection_delta": (sum(req_projections) / len(req_projections)) - (sum(off_projections) / len(off_projections)),
+            "upside_trend": "improving" if (sum(req_projections) / len(req_projections)) > (sum(off_projections) / len(off_projections)) else "declining"
+        },
+        "ceiling_analysis": {
+            "offered_ceiling": max(off_projections),
+            "requested_ceiling": max(req_projections),
+            "floor_analysis": {
+                "offered_floor": min(off_projections),
+                "requested_floor": min(req_projections)
+            }
+        },
+        "upside_assessment": "higher_upside" if (sum(req_projections) / len(req_projections)) > (sum(off_projections) / len(off_projections)) + 2 else "lower_upside" if (sum(req_projections) / len(req_projections)) < (sum(off_projections) / len(off_projections)) - 2 else "similar_upside"
+    }
+
+
+def analyze_trade_impact(offered: List[Dict], requested: List[Dict], delta: float) -> Dict:
+    """Analyze the overall impact of the trade."""
+    return {
+        "immediate_impact": {
+            "value_change": delta,
+            "impact_magnitude": "significant" if abs(delta) > 5 else "moderate" if abs(delta) > 2 else "minimal",
+            "impact_direction": "positive" if delta > 0 else "negative" if delta < 0 else "neutral"
+        },
+        "roster_impact": {
+            "position_diversity": len(set(p.get('position', 'UNKNOWN') for p in requested)) - len(set(p.get('position', 'UNKNOWN') for p in offered)),
+            "team_diversity": len(set(p.get('team', 'UNKNOWN') for p in requested)) - len(set(p.get('team', 'UNKNOWN') for p in offered))
+        },
+        "strategic_impact": {
+            "trade_type": "quantity_for_quality" if len(offered) > len(requested) else "quality_for_quantity" if len(offered) < len(requested) else "balanced",
+            "long_term_impact": "positive" if delta > 2 else "negative" if delta < -2 else "neutral"
+        }
+    }
+
+
+def calculate_confidence_score(delta: float, total_off: float, total_req: float, off_count: int, req_count: int) -> int:
+    """Calculate confidence score for the trade analysis."""
+    base_confidence = 50
+    
+    # Value confidence
+    if abs(delta) > 5:
+        base_confidence += 20
+    elif abs(delta) > 2:
+        base_confidence += 10
+    
+    # Sample size confidence
+    if off_count >= 2 and req_count >= 2:
+        base_confidence += 15
+    elif off_count >= 1 and req_count >= 1:
+        base_confidence += 10
+    
+    # Value magnitude confidence
+    if total_off > 20 and total_req > 20:
+        base_confidence += 15
+    
+    return min(95, max(25, base_confidence))
+
+
+def identify_key_factors(delta: float, position_balance: Dict, risk_assessment: Dict, upside_potential: Dict) -> List[str]:
+    """Identify key factors driving the trade recommendation."""
+    factors = []
+    
+    if abs(delta) > 3:
+        factors.append(f"Significant value difference ({delta:+.1f} points)")
+    
+    # Position factors
+    for pos, balance in position_balance.items():
+        if abs(balance["net_change"]) > 0:
+            factors.append(f"Position balance change at {pos}: {balance['balance_status']} {abs(balance['net_change'])} player(s)")
+    
+    # Risk factors
+    if risk_assessment.get("risk_assessment") != "similar_risk":
+        factors.append(f"Risk profile change: {risk_assessment.get('risk_assessment', 'unknown')}")
+    
+    # Upside factors
+    if upside_potential.get("upside_assessment") != "similar_upside":
+        factors.append(f"Upside potential change: {upside_potential.get('upside_assessment', 'unknown')}")
+    
+    return factors[:5]  # Limit to top 5 factors
+
+
+def generate_comprehensive_summary(offered: List[Dict], requested: List[Dict], delta: float, recommendation: str, 
+                                 position_balance: Dict, depth_analysis: Dict, risk_assessment: Dict, upside_potential: Dict) -> str:
+    """Generate a comprehensive trade analysis summary."""
+    
+    summary_parts = []
+    
+    # Opening
+    summary_parts.append(f"📊 **TRADE ANALYSIS SUMMARY**")
+    summary_parts.append(f"")
+    
+    # Value analysis
+    summary_parts.append(f"💰 **Value Analysis:**")
+    summary_parts.append(f"• Net value change: {delta:+.1f} points")
+    summary_parts.append(f"• Recommendation: **{recommendation.upper()}**")
+    summary_parts.append(f"• Trading {len(offered)} player(s) for {len(requested)} player(s)")
+    summary_parts.append(f"")
+    
+    # Position analysis
+    summary_parts.append(f"🏈 **Position Impact:**")
+    for pos, balance in position_balance.items():
+        if balance["net_change"] != 0:
+            summary_parts.append(f"• {pos}: {balance['balance_status']} {abs(balance['net_change'])} player(s)")
+    summary_parts.append(f"")
+    
+    # Depth analysis
+    summary_parts.append(f"📈 **Roster Depth:**")
+    summary_parts.append(f"• Roster size change: {depth_analysis['roster_size_change']:+d} player(s)")
+    summary_parts.append(f"• Depth impact: {depth_analysis['depth_impact']}")
+    summary_parts.append(f"")
+    
+    # Risk analysis
+    if risk_assessment.get("risk_assessment") != "similar_risk":
+        summary_parts.append(f"⚠️ **Risk Assessment:**")
+        summary_parts.append(f"• Risk profile: {risk_assessment.get('risk_assessment', 'unknown')}")
+        if risk_assessment.get("high_risk_players", {}).get("requested"):
+            summary_parts.append(f"• High-risk players: {', '.join(risk_assessment['high_risk_players']['requested'])}")
+        summary_parts.append(f"")
+    
+    # Upside analysis
+    if upside_potential.get("upside_assessment") != "similar_upside":
+        summary_parts.append(f"🚀 **Upside Potential:**")
+        summary_parts.append(f"• Projection trend: {upside_potential.get('upside_trend', 'unknown')}")
+        summary_parts.append(f"• Upside assessment: {upside_potential.get('upside_assessment', 'unknown')}")
+        summary_parts.append(f"")
+    
+    # Conclusion
+    summary_parts.append(f"🎯 **Bottom Line:**")
+    if recommendation == "accept":
+        summary_parts.append(f"This trade appears favorable, gaining {delta:.1f} points in value while potentially improving your roster composition.")
+    elif recommendation == "decline":
+        summary_parts.append(f"This trade appears unfavorable, losing {abs(delta):.1f} points in value. Consider negotiating for better terms.")
+    else:
+        summary_parts.append(f"This trade is relatively balanced with minimal value difference. Consider your team's specific needs and depth requirements.")
+    
+    return "\n".join(summary_parts)
+
+
+def _calculate_std_dev(values: List[float]) -> float:
+    """Calculate standard deviation of a list of values."""
+    if len(values) < 2:
+        return 0.0
+    mean = sum(values) / len(values)
+    variance = sum((x - mean) ** 2 for x in values) / len(values)
+    return variance ** 0.5
 
 
