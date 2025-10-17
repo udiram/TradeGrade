@@ -120,6 +120,7 @@ def create_proposal(league_id: int):
             offered_players = []
             for entry in offered_entries:
                 player_dict = {
+                    'id': entry.player.id,  # Add required id field
                     'name': entry.player.name,
                     'position': entry.player.position,
                     'team': entry.player.team,
@@ -130,6 +131,7 @@ def create_proposal(league_id: int):
             requested_players = []
             for entry in requested_entries:
                 player_dict = {
+                    'id': entry.player.id,  # Add required id field
                     'name': entry.player.name,
                     'position': entry.player.position,
                     'team': entry.player.team,
