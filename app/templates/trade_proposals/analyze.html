@@ -163,7 +163,7 @@
             <div class="position-detail">
               <span class="detail-label">Net Change:</span>
               <span class="detail-value {{ 'positive' if balance.net_change > 0 else 'negative' if balance.net_change < 0 else 'neutral' }}">
-                {{ balance.net_change:+d }}
+                {% if balance.net_change > 0 %}+{{ balance.net_change }}{% elif balance.net_change < 0 %}{{ balance.net_change }}{% else %}0{% endif %}
               </span>
             </div>
           </div>
