@@ -171,14 +171,23 @@ def analyze_trade(offered: List[Dict], requested: List[Dict]) -> Dict:
     upside_delta = req_upside - off_upside
     
     # Generate AI summary
-    ai_summary = generate_trade_summary(offered, requested, {
-        "delta": delta,
-        "recommendation": recommendation,
-        "off_positions": off_positions,
-        "req_positions": req_positions,
-        "risk_delta": risk_delta,
-        "upside_delta": upside_delta,
-    })
+    try:
+        ai_summary = generate_trade_summary(offered, requested, {
+            "delta": delta,
+            "recommendation": recommendation,
+            "off_positions": off_positions,
+            "req_positions": req_positions,
+            "risk_delta": risk_delta,
+            "upside_delta": upside_delta,
+        })
+    except Exception as e:
+        print(f"AI summary generation failed: {e}")
+        ai_summary = {
+            "summary": f"Trade analysis completed. Score: {delta:+.1f}. Recommendation: {recommendation.title()}.",
+            "recommendation": recommendation,
+            "bullets": [],
+            "confidence": 75
+        }
     
     return {
         "offered_table": df_off.to_dict(orient="records"),
@@ -186,7 +195,9 @@ def analyze_trade(offered: List[Dict], requested: List[Dict]) -> Dict:
         "offered_total": round(total_off, 2),
         "requested_total": round(total_req, 2),
         "delta": round(delta, 2),
+        "numeric_score": round(delta, 2),  # For template compatibility
         "recommendation": recommendation,
+        "summary": ai_summary.get("summary", f"Trade analysis: {recommendation.title()} recommendation with {delta:+.1f} point difference."),
         "position_analysis": {
             "offered": off_positions,
             "requested": req_positions,

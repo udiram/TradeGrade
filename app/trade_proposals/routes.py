@@ -138,9 +138,13 @@ def create_proposal(league_id: int):
                 requested_players.append(player_dict)
             
             print(f"Analyzing trade: {len(offered_players)} offered, {len(requested_players)} requested")
+            print(f"Offered players: {[p.get('name') for p in offered_players]}")
+            print(f"Requested players: {[p.get('name') for p in requested_players]}")
+            
             analysis = analyze_trade(offered_players, requested_players)
             proposal.analysis_data = json.dumps(analysis)
             print(f"Analysis completed: {analysis.get('recommendation', 'Unknown')}")
+            print(f"Analysis data: {analysis}")
         except Exception as e:
             print(f"Trade analysis failed: {e}")
             import traceback
