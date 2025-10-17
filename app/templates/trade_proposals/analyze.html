@@ -194,13 +194,67 @@
             <span class="risk-value">{{ "%.1f"|format(analysis_data.risk_analysis.requested_avg_risk * 100) }}%</span>
           </div>
         </div>
-        {% if analysis_data.risk_analysis.get('high_risk_players', {}).get('requested') %}
+        
+        <!-- Risk Change Analysis -->
+        {% if analysis_data.risk_analysis.get('injury_risk_change') %}
+        <div class="risk-change-analysis">
+          <h4>📊 Risk Change Breakdown</h4>
+          <div class="risk-change-grid">
+            <div class="risk-change-item">
+              <span class="change-label">Risk Trend</span>
+              <span class="change-value {{ 'positive' if analysis_data.risk_analysis.injury_risk_change.risk_trend == 'decreasing' else 'negative' if analysis_data.risk_analysis.injury_risk_change.risk_trend == 'increasing' else 'neutral' }}">
+                {{ analysis_data.risk_analysis.injury_risk_change.risk_trend|title }}
+              </span>
+            </div>
+            <div class="risk-change-item">
+              <span class="change-label">Risk Delta</span>
+              <span class="change-value {{ 'positive' if analysis_data.risk_analysis.injury_risk_change.risk_delta < 0 else 'negative' if analysis_data.risk_analysis.injury_risk_change.risk_delta > 0 else 'neutral' }}">
+                {% if analysis_data.risk_analysis.injury_risk_change.risk_delta > 0 %}+{% endif %}{{ "%.1f"|format(analysis_data.risk_analysis.injury_risk_change.risk_delta * 100) }}%
+              </span>
+            </div>
+            <div class="risk-change-item">
+              <span class="change-label">Offered Avg Risk</span>
+              <span class="change-value">{{ "%.1f"|format(analysis_data.risk_analysis.injury_risk_change.offered_avg_risk * 100) }}%</span>
+            </div>
+            <div class="risk-change-item">
+              <span class="change-label">Requested Avg Risk</span>
+              <span class="change-value">{{ "%.1f"|format(analysis_data.risk_analysis.injury_risk_change.requested_avg_risk * 100) }}%</span>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
+        <!-- High Risk Players -->
+        {% if analysis_data.risk_analysis.get('high_risk_players') %}
         <div class="high-risk-players">
-          <h4>High-Risk Players (Risk > 30%)</h4>
-          <div class="risk-players-list">
-            {% for player in analysis_data.risk_analysis.high_risk_players.requested %}
-            <span class="risk-player-tag">{{ player }}</span>
-            {% endfor %}
+          <h4>🚨 High-Risk Players (Risk > 30%)</h4>
+          <div class="risk-players-container">
+            {% if analysis_data.risk_analysis.high_risk_players.get('offered') %}
+            <div class="risk-players-section">
+              <h5>Players You're Trading Away</h5>
+              <div class="risk-players-list">
+                {% for player in analysis_data.risk_analysis.high_risk_players.offered %}
+                <span class="risk-player-tag offered">{{ player|title }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            {% if analysis_data.risk_analysis.high_risk_players.get('requested') %}
+            <div class="risk-players-section">
+              <h5>Players You're Receiving</h5>
+              <div class="risk-players-list">
+                {% for player in analysis_data.risk_analysis.high_risk_players.requested %}
+                <span class="risk-player-tag requested">{{ player|title }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            {% if not analysis_data.risk_analysis.high_risk_players.get('offered') and not analysis_data.risk_analysis.high_risk_players.get('requested') %}
+            <div class="no-high-risk">
+              <span class="no-risk-icon">✅</span>
+              <span class="no-risk-text">No high-risk players in this trade</span>
+            </div>
+            {% endif %}
           </div>
         </div>
         {% endif %}
@@ -712,6 +766,104 @@
   border-radius: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+.risk-player-tag.offered {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.risk-player-tag.requested {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Risk Change Analysis */
+.risk-change-analysis {
+  margin-top: 1.5rem;
+}
+
+.risk-change-analysis h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.risk-change-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.risk-change-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--card-background);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.change-label {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.change-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.change-value.positive {
+  color: #059669;
+}
+
+.change-value.negative {
+  color: #dc2626;
+}
+
+.change-value.neutral {
+  color: var(--muted-color);
+}
+
+/* High Risk Players */
+.risk-players-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.risk-players-section h5 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.no-high-risk {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #d1fae5;
+  border-radius: 0.75rem;
+  border: 1px solid #a7f3d0;
+}
+
+.no-risk-icon {
+  font-size: 1.25rem;
+}
+
+.no-risk-text {
+  color: #065f46;
+  font-weight: 600;
 }
 
 /* Upside Analysis */
