@@ -88,6 +88,23 @@ class Trade(TimestampMixin, db.Model):
     summary = db.Column(db.Text, nullable=True)
 
 
+class TradeProposal(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    league_id = db.Column(db.Integer, db.ForeignKey("league.id"), nullable=False, index=True)
+    proposer_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    offered_player_ids = db.Column(db.Text, nullable=False)  # comma-separated roster entry ids
+    requested_player_ids = db.Column(db.Text, nullable=False)  # comma-separated roster entry ids
+    status = db.Column(db.String(20), default="pending", nullable=False)  # pending, accepted, rejected, cancelled
+    message = db.Column(db.Text, nullable=True)  # optional message from proposer
+    analysis_data = db.Column(db.Text, nullable=True)  # JSON string of trade analysis
+    
+    # Relationships
+    league = db.relationship("League")
+    proposer = db.relationship("User", foreign_keys=[proposer_id])
+    recipient = db.relationship("User", foreign_keys=[recipient_id])
+
+
 class BoardPost(TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     league_id = db.Column(db.Integer, db.ForeignKey("league.id"), nullable=False, index=True)

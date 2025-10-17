@@ -32,14 +32,61 @@ def add_player(league_id: int):
     if not player_id:
         flash("Please select a player from suggestions", "warning")
         return redirect(url_for("roster.view", league_id=league_id))
+    
+    # Handle easter egg player
+    if player_id == "easter_egg_rue_arlotta":
+        # Check if Rue Arlotta is already on this user's roster
+        existing_easter_egg = RosterEntry.query.filter_by(
+            user_id=current_user.id, 
+            league_id=league_id,
+            player_id=None  # Easter egg players have no real player_id
+        ).join(Player).filter(Player.name == "Rue Arlotta").first()
+        
+        if existing_easter_egg:
+            flash("Rue Arlotta is already on your roster! 🎃", "info")
+            return redirect(url_for("roster.view", league_id=league_id))
+        
+        # Check if Rue Arlotta is already on another team
+        other_easter_egg = RosterEntry.query.filter_by(league_id=league_id).join(Player).filter(Player.name == "Rue Arlotta").first()
+        if other_easter_egg:
+            flash("Rue Arlotta is already on another team in this league! 🎃", "warning")
+            return redirect(url_for("roster.view", league_id=league_id))
+        
+        # Create the easter egg player in the database if it doesn't exist
+        easter_egg_player = Player.query.filter_by(name="Rue Arlotta").first()
+        if not easter_egg_player:
+            easter_egg_player = Player(
+                name="Rue Arlotta",
+                position="RB",
+                team="NE",
+                external_id="easter_egg_rue_arlotta"
+            )
+            db.session.add(easter_egg_player)
+            db.session.flush()  # Get the ID
+        
+        # Add to roster
+        db.session.add(RosterEntry(user_id=current_user.id, league_id=league_id, player_id=easter_egg_player.id))
+        db.session.commit()
+        flash("Rue Arlotta added to your roster! 🎃 This is going to be legendary!", "success")
+        return redirect(url_for("roster.view", league_id=league_id))
+    
     player = Player.query.get(player_id)
     if not player:
         flash("Selected player was not found in the database", "danger")
         return redirect(url_for("roster.view", league_id=league_id))
+    
+    # Check if player is already on this user's roster
     exists = RosterEntry.query.filter_by(user_id=current_user.id, league_id=league_id, player_id=player.id).first()
     if exists:
-        flash("Player already in roster", "info")
+        flash("Player already in your roster", "info")
         return redirect(url_for("roster.view", league_id=league_id))
+    
+    # Check if player is already on another team in this league
+    other_roster = RosterEntry.query.filter_by(league_id=league_id, player_id=player.id).first()
+    if other_roster:
+        flash("This player is already on another team in this league", "warning")
+        return redirect(url_for("roster.view", league_id=league_id))
+    
     db.session.add(RosterEntry(user_id=current_user.id, league_id=league_id, player_id=player.id))
     db.session.commit()
     flash("Player added", "success")

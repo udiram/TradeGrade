@@ -25,9 +25,13 @@
               <div class="player-list">
                 {% for entry in member.starters %}
                   <div class="player-item">
-                    <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
-                         onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
-                         alt="{{ entry.player.name }}" class="player-avatar">
+                    {% if entry.player.external_id == 'easter_egg_rue_arlotta' %}
+                      <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar" style="border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                      <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                           onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                           alt="{{ entry.player.name }}" class="player-avatar">
+                    {% endif %}
                     <div class="player-info">
                       <strong>{{ entry.player.name }}</strong>
                       <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>
@@ -46,9 +50,13 @@
               <div class="player-list">
                 {% for entry in member.bench %}
                   <div class="player-item">
-                    <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
-                         onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
-                         alt="{{ entry.player.name }}" class="player-avatar">
+                    {% if entry.player.external_id == 'easter_egg_rue_arlotta' %}
+                      <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar" style="border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                      <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                           onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                           alt="{{ entry.player.name }}" class="player-avatar">
+                    {% endif %}
                     <div class="player-info">
                       <strong>{{ entry.player.name }}</strong>
                       <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>

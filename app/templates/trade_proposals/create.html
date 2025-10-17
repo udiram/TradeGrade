@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+{% block title %}Propose Trade - TradeGrade{% endblock %}
+{% block content %}
+<div class="proposal-header">
+  <div class="header-content">
+    <h2>Propose Trade</h2>
+    <p>Negotiate a trade with another league member</p>
+  </div>
+  <a href="{{ url_for('trade_proposals.list_proposals', league_id=league_id) }}" class="back-btn">← Back to Proposals</a>
+</div>
+
+<div class="proposal-form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-icon">🤝</div>
+      <h3>Trade Details</h3>
+    </div>
+    
+    <form method="post" class="proposal-form">
+      <div class="form-group">
+        <label for="recipient_id">Trade Partner</label>
+        <select id="recipient_id" name="recipient_id" required>
+          <option value="">Select a league member</option>
+          {% for member in league_members %}
+            <option value="{{ member.id }}">{{ member.display_name or member.email }}</option>
+          {% endfor %}
+        </select>
+        <small>Choose the league member you want to trade with</small>
+      </div>
+      
+      <div class="form-group">
+        <label>Players You're Offering</label>
+        <div class="players-selection">
+          {% for entry in my_roster %}
+            <div class="player-option">
+              <input type="checkbox" id="offered_{{ entry.id }}" name="offered_players" value="{{ entry.id }}">
+              <label for="offered_{{ entry.id }}" class="player-card">
+                {% if entry.player.external_id == 'easter_egg_rue_arlotta' %}
+                  <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar" style="border-radius: 50%; object-fit: cover;">
+                {% else %}
+                  <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                       onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                       alt="{{ entry.player.name }}" class="player-avatar">
+                {% endif %}
+                <div class="player-info">
+                  <strong>{{ entry.player.name }}</strong>
+                  <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>
+                </div>
+                <div class="checkbox-indicator"></div>
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+        <small>Select the players you want to trade away</small>
+      </div>
+      
+      <div class="form-group">
+        <label>Players You Want</label>
+        <div class="players-selection" id="requested-players">
+          <div class="placeholder-message">
+            <div class="placeholder-icon">👥</div>
+            <p>Select a trade partner first to see their available players</p>
+          </div>
+        </div>
+        <small>Select the players you want to receive</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="message">Message (Optional)</label>
+        <textarea id="message" name="message" placeholder="Add a message to explain your trade proposal..." rows="3"></textarea>
+        <small>Explain why this trade makes sense for both teams</small>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="submit-btn">
+          <span class="icon">📤</span>
+          <span>Send Trade Proposal</span>
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <div class="info-card">
+    <h4>Trade Guidelines</h4>
+    <ul class="guidelines-list">
+      <li>
+        <span class="guideline-icon">⚖️</span>
+        <div>
+          <strong>Fair trades</strong>
+          <p>Propose trades that benefit both teams</p>
+        </div>
+      </li>
+      <li>
+        <span class="guideline-icon">📊</span>
+        <div>
+          <strong>Analysis included</strong>
+          <p>Each proposal includes automatic trade analysis</p>
+        </div>
+      </li>
+      <li>
+        <span class="guideline-icon">🔄</span>
+        <div>
+          <strong>Instant execution</strong>
+          <p>Accepted trades are executed immediately</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<style>
+.proposal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.header-content h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-content p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.proposal-form-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.form-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-color);
+}
+
+.proposal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.form-group select,
+.form-group textarea {
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: var(--input-background);
+  font-family: inherit;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.form-group small {
+  color: var(--muted-color);
+  font-size: 0.875rem;
+}
+
+.players-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 1rem;
+  background: var(--secondary-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.player-option {
+  position: relative;
+}
+
+.player-option input[type="checkbox"] {
+  display: none;
+}
+
+.player-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.player-card:hover {
+  background: var(--hover-background);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.player-option input[type="checkbox"]:checked + .player-card {
+  background: rgba(var(--primary-rgb), 0.1);
+  border-color: var(--primary);
+}
+
+.player-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+}
+
+.player-info strong {
+  font-size: 0.875rem;
+  color: var(--text-color);
+}
+
+.player-info .muted {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+}
+
+.checkbox-indicator {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.player-option input[type="checkbox"]:checked + .player-card .checkbox-indicator {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.player-option input[type="checkbox"]:checked + .player-card .checkbox-indicator::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.placeholder-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted-color);
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.placeholder-message p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.form-actions {
+  margin-top: 1rem;
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.3);
+}
+
+.info-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.info-card h4 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.guidelines-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.guidelines-list li {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.guideline-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  background: var(--secondary-background);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guidelines-list li div {
+  flex: 1;
+}
+
+.guidelines-list li strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.guidelines-list li p {
+  margin: 0;
+  color: var(--muted-color);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .proposal-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .proposal-form-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .form-card, .info-card {
+    padding: 1.5rem;
+  }
+  
+  .players-selection {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const recipientSelect = document.getElementById('recipient_id');
+  const requestedPlayersContainer = document.getElementById('requested-players');
+  
+  recipientSelect.addEventListener('change', function() {
+    const recipientId = this.value;
+    
+    if (!recipientId) {
+      requestedPlayersContainer.innerHTML = `
+        <div class="placeholder-message">
+          <div class="placeholder-icon">👥</div>
+          <p>Select a trade partner first to see their available players</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Fetch the recipient's roster
+    fetch(`/api/league/${recipientId}/roster/{{ league_id }}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.players) {
+          const playersHtml = data.players.map(player => `
+            <div class="player-option">
+              <input type="checkbox" id="requested_${player.id}" name="requested_players" value="${player.id}">
+              <label for="requested_${player.id}" class="player-card">
+                ${player.external_id === 'easter_egg_rue_arlotta' ? 
+                  `<img src="/static/rue.png" alt="${player.name}" class="player-avatar" style="border-radius: 50%; object-fit: cover;">` :
+                  `<img src="https://sleepercdn.com/content/nfl/players/thumb/${player.external_id}.jpg" 
+                       onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=f3f4f6&color=111827'" 
+                       alt="${player.name}" class="player-avatar">`
+                }
+                <div class="player-info">
+                  <strong>${player.name}</strong>
+                  <span class="muted">${player.position} • ${player.team}</span>
+                </div>
+                <div class="checkbox-indicator"></div>
+              </label>
+            </div>
+          `).join('');
+          
+          requestedPlayersContainer.innerHTML = playersHtml;
+        } else {
+          requestedPlayersContainer.innerHTML = `
+            <div class="placeholder-message">
+              <div class="placeholder-icon">❌</div>
+              <p>Could not load player roster</p>
+            </div>
+          `;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching roster:', error);
+        requestedPlayersContainer.innerHTML = `
+          <div class="placeholder-message">
+            <div class="placeholder-icon">❌</div>
+            <p>Error loading player roster</p>
+          </div>
+        `;
+      });
+  });
+});
+</script>
+{% endblock %}

@@ -109,6 +109,25 @@ def value_players(players: List[Dict]) -> Tuple[pd.DataFrame, float]:
 
 
 def analyze_trade(offered: List[Dict], requested: List[Dict]) -> Dict:
+    # Easter egg: Special handling for Rue Arlotta
+    rue_arlotta_in_offered = any(player.get('name') == 'Rue Arlotta' for player in offered)
+    rue_arlotta_in_requested = any(player.get('name') == 'Rue Arlotta' for player in requested)
+    
+    if rue_arlotta_in_requested and not rue_arlotta_in_offered:
+        # If you're getting Rue Arlotta, this is an amazing trade!
+        return {
+            "numeric_score": 100.0,
+            "recommendation": "accept",
+            "summary": "🎃 LEGENDARY TRADE ALERT! 🎃 You're getting Rue Arlotta, the most dominant running back in fantasy history! With 100 points per game, 2000+ rushing yards, and 25+ touchdowns, this is the trade of the century! Accept immediately before they realize their mistake! This fluffy Patriots RB will carry your team to victory! 🏆"
+        }
+    elif rue_arlotta_in_offered and not rue_arlotta_in_requested:
+        # If you're giving away Rue Arlotta, this is a terrible trade!
+        return {
+            "numeric_score": -100.0,
+            "recommendation": "decline",
+            "summary": "🚨 TRADE DISASTER WARNING! 🚨 You're about to give away Rue Arlotta, the greatest fantasy player of all time! This fluffy Patriots RB puts up 100 points per game! Don't do it! Keep your legendary running back and dominate your league! 🎃"
+        }
+    
     df_off, total_off = value_players(offered)
     df_req, total_req = value_players(requested)
     delta = total_req - total_off
@@ -187,6 +206,24 @@ def analyze_trade(offered: List[Dict], requested: List[Dict]) -> Dict:
 
 
 def analyze_sit_start(player: Dict, team_context: Dict | None = None) -> Dict:
+    # Easter egg: Special handling for Rue Arlotta
+    if player.get('name') == 'Rue Arlotta':
+        return {
+            "player": {
+                "name": "Rue Arlotta",
+                "position": "RB",
+                "team": "NE",
+                "value": 100.0
+            },
+            "recommendation": "START",
+            "confidence": 1.0,
+            "reasoning": "🎃 LEGENDARY PLAYER ALERT! 🎃 Rue Arlotta is the greatest running back in fantasy history! With 100 points per game, this fluffy Patriots RB is an absolute must-start every single week! Bench him at your own peril! He's going to carry your team to the championship! 🏆",
+            "projected_points": 100.0,
+            "injury_risk": 0.0,
+            "opponent_difficulty": 0.0,
+            "recent_form": 1.0
+        }
+    
     df, total = value_players([player])
     value = total
     

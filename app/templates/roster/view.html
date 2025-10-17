@@ -26,7 +26,11 @@
     <div class="section-title"><h4>Starters</h4><span class="badge">{{ starters|length }}</span></div>
     {% for e in starters %}
       <div class="player-card">
-        <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ e.player.external_id }}.jpg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827'" alt="{{ e.player.name }}">
+        {% if e.player.external_id == 'easter_egg_rue_arlotta' %}
+          <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ e.player.name }}" style="border-radius: 50%; object-fit: cover;">
+        {% else %}
+          <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ e.player.external_id }}.jpg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827'" alt="{{ e.player.name }}">
+        {% endif %}
         <div style="flex:1;">
           <strong>{{ e.player.name }}</strong>
           <div class="muted">{{ e.player.position }} • {{ e.player.team }}</div>
@@ -46,7 +50,11 @@
     <div class="section-title"><h4>Bench</h4><span class="badge">{{ bench|length }}</span></div>
     {% for e in bench %}
       <div class="player-card">
-        <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ e.player.external_id }}.jpg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827'" alt="{{ e.player.name }}">
+        {% if e.player.external_id == 'easter_egg_rue_arlotta' %}
+          <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ e.player.name }}" style="border-radius: 50%; object-fit: cover;">
+        {% else %}
+          <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ e.player.external_id }}.jpg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827'" alt="{{ e.player.name }}">
+        {% endif %}
         <div style="flex:1;">
           <strong>{{ e.player.name }}</strong>
           <div class="muted">{{ e.player.position }} • {{ e.player.team }}</div>

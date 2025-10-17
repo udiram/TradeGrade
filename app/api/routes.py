@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from ..models import Player
+from ..models import Player, RosterEntry, Membership
 from ..services.players import search_players_cache, NFL_TEAMS, VALID_POSITIONS, TEAM_NICKNAMES
 
 
@@ -11,6 +11,25 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 def search_players():
     q = (request.args.get("q") or "").strip()
     query = Player.query
+    
+    # Easter egg: Rue Arlotta
+    if q and ("rue arlotta" in q.lower() or (q.lower().startswith("rue") and len(q.strip()) <= 10)):
+        return jsonify([{
+            "id": "easter_egg_rue_arlotta",
+            "name": "Rue Arlotta",
+            "position": "RB",
+            "team": "NE",
+            "external_id": "easter_egg_rue_arlotta",
+            "easter_egg": True,
+            "stats": {
+                "points_per_game": 100.0,
+                "rushing_yards": 2000,
+                "rushing_tds": 25,
+                "receiving_yards": 800,
+                "receiving_tds": 8,
+                "fantasy_points": 1600
+            }
+        }])
     
     if q:
         q_lower = q.lower()
@@ -55,5 +74,34 @@ def search_players():
             continue
         merged.append({"id": None, "name": p.get("name"), "position": p.get("position"), "team": p.get("team")})
     return jsonify(merged[:20])
+
+
+@api_bp.get("/league/<int:user_id>/roster/<int:league_id>")
+def get_user_roster(user_id: int, league_id: int):
+    """Get a user's roster for trade proposals"""
+    # Check if the user is a member of the league
+    membership = Membership.query.filter_by(user_id=user_id, league_id=league_id).first()
+    if not membership:
+        return jsonify({"success": False, "error": "User not found in league"}), 404
+    
+    # Get the user's roster entries
+    roster_entries = RosterEntry.query.filter_by(
+        user_id=user_id, 
+        league_id=league_id
+    ).join(Player).order_by(Player.position, Player.name).all()
+    
+    # Format the response
+    players = []
+    for entry in roster_entries:
+        players.append({
+            "id": entry.id,  # RosterEntry ID for trade proposals
+            "player_id": entry.player.id,
+            "name": entry.player.name,
+            "position": entry.player.position,
+            "team": entry.player.team,
+            "external_id": entry.player.external_id
+        })
+    
+    return jsonify({"success": True, "players": players})
 
 

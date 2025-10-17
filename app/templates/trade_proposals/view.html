@@ -1,0 +1,676 @@
+{% extends 'base.html' %}
+{% block title %}Trade Proposal - TradeGrade{% endblock %}
+{% block content %}
+<div class="proposal-header">
+  <div class="header-content">
+    <h2>Trade Proposal</h2>
+    <p>Review and respond to this trade proposal</p>
+  </div>
+  <a href="{{ url_for('trade_proposals.list_proposals', league_id=league_id) }}" class="back-btn">← Back to Proposals</a>
+</div>
+
+<div class="proposal-details-container">
+  <div class="proposal-card">
+    <div class="proposal-meta">
+      <div class="proposal-info">
+        <h3>
+          {% if proposal.proposer_id == current_user.id %}
+            Your trade proposal to {{ proposal.recipient.display_name or proposal.recipient.email }}
+          {% else %}
+            Trade proposal from {{ proposal.proposer.display_name or proposal.proposer.email }}
+          {% endif %}
+        </h3>
+        <div class="proposal-details">
+          <span class="proposal-date">{{ proposal.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+          <span class="proposal-status status-{{ proposal.status }}">{{ proposal.status.title() }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="trade-overview">
+      <div class="trade-sides">
+        <div class="trade-side offered">
+          <h4>{% if proposal.proposer_id == current_user.id %}You Offer{% else %}{{ proposal.proposer.display_name or proposal.proposer.email }} Offers{% endif %}</h4>
+          <div class="players-grid">
+            {% for entry in offered_entries %}
+              <div class="player-card">
+                {% if entry.player.external_id == 'easter_egg_rue_arlotta' %}
+                  <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar" style="border-radius: 50%; object-fit: cover;">
+                {% else %}
+                  <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                       onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                       alt="{{ entry.player.name }}" class="player-avatar">
+                {% endif %}
+                <div class="player-info">
+                  <strong>{{ entry.player.name }}</strong>
+                  <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <div class="trade-arrow">⇄</div>
+        
+        <div class="trade-side requested">
+          <h4>{% if proposal.proposer_id == current_user.id %}You Receive{% else %}You Give{% endif %}</h4>
+          <div class="players-grid">
+            {% for entry in requested_entries %}
+              <div class="player-card">
+                {% if entry.player.external_id == 'easter_egg_rue_arlotta' %}
+                  <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar" style="border-radius: 50%; object-fit: cover;">
+                {% else %}
+                  <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                       onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                       alt="{{ entry.player.name }}" class="player-avatar">
+                {% endif %}
+                <div class="player-info">
+                  <strong>{{ entry.player.name }}</strong>
+                  <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% if proposal.message %}
+      <div class="proposal-message">
+        <h4>Message from {{ proposal.proposer.display_name or proposal.proposer.email }}</h4>
+        <p>{{ proposal.message }}</p>
+      </div>
+    {% endif %}
+    
+    {% if analysis_data and not analysis_data.get('error') %}
+      <div class="trade-analysis">
+        <h4>Trade Analysis</h4>
+        <div class="analysis-summary">
+          <div class="analysis-score">
+            <span class="score-label">Trade Score</span>
+            <span class="score-value">{{ "%.1f"|format(analysis_data.get('numeric_score', 0)) }}</span>
+          </div>
+          <div class="analysis-recommendation">
+            <span class="recommendation-label">Recommendation</span>
+            <span class="recommendation-value {{ analysis_data.get('recommendation', '').lower() }}">
+              {{ analysis_data.get('recommendation', 'Unknown') }}
+            </span>
+          </div>
+        </div>
+        {% if analysis_data.get('summary') %}
+          <div class="analysis-text">
+            <p>{{ analysis_data.summary }}</p>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+    
+    {% if proposal.status == 'pending' and proposal.recipient_id == current_user.id %}
+      <div class="proposal-actions">
+        <button type="button" class="action-btn accept-btn" onclick="respondToProposal('accept')">
+          <span class="icon">✅</span>
+          <span>Accept Trade</span>
+        </button>
+        <button type="button" class="action-btn reject-btn" onclick="respondToProposal('reject')">
+          <span class="icon">❌</span>
+          <span>Reject Trade</span>
+        </button>
+      </div>
+    {% elif proposal.status == 'pending' and proposal.proposer_id == current_user.id %}
+      <div class="proposal-actions">
+        <button type="button" class="action-btn cancel-btn" onclick="cancelProposal()">
+          <span class="icon">🚫</span>
+          <span>Cancel Proposal</span>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3 id="modalTitle">Confirm Action</h3>
+    <p id="modalMessage">Are you sure you want to proceed?</p>
+    <div class="modal-actions">
+      <button type="button" class="action-btn secondary" onclick="closeModal()">Cancel</button>
+      <button type="button" class="action-btn" id="confirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.proposal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.header-content h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-content p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.proposal-details-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.proposal-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.proposal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.proposal-card.pending::before {
+  background: linear-gradient(90deg, #f59e0b, #f97316);
+}
+
+.proposal-card.accepted::before {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.proposal-card.rejected::before {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.proposal-card.cancelled::before {
+  background: linear-gradient(90deg, #6b7280, #4b5563);
+}
+
+.proposal-meta {
+  margin-bottom: 2rem;
+}
+
+.proposal-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.proposal-details {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.proposal-date {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+}
+
+.proposal-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-accepted {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-cancelled {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.trade-overview {
+  margin-bottom: 2rem;
+}
+
+.trade-sides {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.trade-side {
+  background: var(--secondary-background);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.trade-side h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.trade-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.player-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.player-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.player-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  text-align: center;
+}
+
+.player-info strong {
+  font-size: 0.875rem;
+  color: var(--text-color);
+}
+
+.player-info .muted {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+}
+
+.proposal-message {
+  background: var(--secondary-background);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-left: 4px solid var(--primary);
+}
+
+.proposal-message h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.proposal-message p {
+  margin: 0;
+  color: var(--muted-color);
+  line-height: 1.5;
+}
+
+.trade-analysis {
+  background: var(--secondary-background);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.trade-analysis h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.analysis-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.analysis-score,
+.analysis-recommendation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+  padding: 1rem;
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.score-label,
+.recommendation-label {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.score-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.recommendation-value {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recommendation-value.accept {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.recommendation-value.reject {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.recommendation-value.neutral {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.analysis-text {
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.analysis-text p {
+  margin: 0;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+.proposal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.action-btn.accept-btn {
+  background: #10b981;
+  color: white;
+}
+
+.action-btn.accept-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.action-btn.reject-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.action-btn.reject-btn:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+.action-btn.cancel-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.action-btn.cancel-btn:hover {
+  background: #4b5563;
+  transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+  background: var(--secondary-background);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.action-btn.secondary:hover {
+  background: var(--hover-background);
+  border-color: var(--primary);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--card-background);
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+}
+
+.modal-content p {
+  margin: 0 0 2rem 0;
+  color: var(--muted-color);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .proposal-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .trade-sides {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .trade-arrow {
+    transform: rotate(90deg);
+    font-size: 2rem;
+  }
+  
+  .analysis-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .proposal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
+<script>
+let pendingAction = null;
+
+function respondToProposal(action) {
+  const actionText = action === 'accept' ? 'accept' : 'reject';
+  const actionColor = action === 'accept' ? 'green' : 'red';
+  
+  document.getElementById('modalTitle').textContent = `Confirm ${actionText.charAt(0).toUpperCase() + actionText.slice(1)}`;
+  document.getElementById('modalMessage').textContent = `Are you sure you want to ${actionText} this trade proposal?`;
+  document.getElementById('confirmBtn').textContent = actionText.charAt(0).toUpperCase() + actionText.slice(1);
+  document.getElementById('confirmBtn').className = `action-btn ${action}-btn`;
+  
+  pendingAction = action;
+  document.getElementById('confirmationModal').style.display = 'flex';
+}
+
+function cancelProposal() {
+  document.getElementById('modalTitle').textContent = 'Cancel Proposal';
+  document.getElementById('modalMessage').textContent = 'Are you sure you want to cancel this trade proposal?';
+  document.getElementById('confirmBtn').textContent = 'Cancel';
+  document.getElementById('confirmBtn').className = 'action-btn cancel-btn';
+  
+  pendingAction = 'cancel';
+  document.getElementById('confirmationModal').style.display = 'flex';
+}
+
+function closeModal() {
+  pendingAction = null;
+  document.getElementById('confirmationModal').style.display = 'none';
+}
+
+document.getElementById('confirmBtn').addEventListener('click', async function() {
+  if (!pendingAction) return;
+  
+  try {
+    let url, method;
+    
+    if (pendingAction === 'cancel') {
+      url = `/trade-proposals/{{ league_id }}/cancel/{{ proposal.id }}`;
+      method = 'POST';
+    } else {
+      url = `/trade-proposals/{{ league_id }}/respond/{{ proposal.id }}`;
+      method = 'POST';
+    }
+    
+    const formData = new FormData();
+    if (pendingAction !== 'cancel') {
+      formData.append('action', pendingAction);
+    }
+    
+    const response = await fetch(url, {
+      method: method,
+      body: formData,
+      credentials: 'same-origin'
+    });
+    
+    if (response.ok) {
+      if (response.headers.get('content-type')?.includes('application/json')) {
+        const data = await response.json();
+        if (data.success) {
+          closeModal();
+          window.location.href = '/trade-proposals/{{ league_id }}';
+        } else {
+          alert('Error: ' + (data.error || 'Failed to process request'));
+        }
+      } else {
+        // Redirect response
+        closeModal();
+        window.location.href = '/trade-proposals/{{ league_id }}';
+      }
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Failed to process request');
+  }
+});
+
+// Close modal when clicking outside
+document.getElementById('confirmationModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeModal();
+  }
+});
+</script>
+{% endblock %}
