@@ -1,0 +1,558 @@
+{% extends 'base.html' %}
+{% block title %}{{ target_user.display_name or target_user.email }} - Team Analysis{% endblock %}
+{% block content %}
+<div class="analysis-header">
+  <div class="header-content">
+    <h2>{{ target_user.display_name or target_user.email }}'s Team</h2>
+    <p class="league-name">{{ league.name }}</p>
+    <div class="team-stats">
+      <span class="stat">
+        <span class="stat-number">{{ analysis.total_players }}</span>
+        <span class="stat-label">Total Players</span>
+      </span>
+      <span class="stat">
+        <span class="stat-number">{{ analysis.roster_completeness }}</span>
+        <span class="stat-label">Roster Status</span>
+      </span>
+    </div>
+  </div>
+  <a href="{{ url_for('league.view_members', league_id=league.id) }}" class="back-btn">← Back to Members</a>
+</div>
+
+<div class="analysis-grid">
+  <!-- Team Overview -->
+  <div class="analysis-card overview-card">
+    <div class="card-header">
+      <h3>Team Overview</h3>
+      <div class="overall-grade grade-{{ analysis.starter_analysis.grade.lower() }}">
+        {{ analysis.starter_analysis.grade }}
+      </div>
+    </div>
+    
+    <div class="overview-stats">
+      <div class="stat-group">
+        <div class="stat-item">
+          <span class="stat-label">Starters</span>
+          <span class="stat-value">{{ starters|length }}</span>
+          <span class="stat-grade grade-{{ analysis.starter_analysis.grade.lower() }}">{{ analysis.starter_analysis.grade }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Bench</span>
+          <span class="stat-value">{{ bench|length }}</span>
+          <span class="stat-grade grade-{{ analysis.bench_analysis.grade.lower() }}">{{ analysis.bench_analysis.grade }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Depth</span>
+          <span class="stat-value">{{ analysis.depth_analysis.bench_strength }}</span>
+          <span class="stat-grade grade-{{ analysis.depth_analysis.depth_grade.lower() }}">{{ analysis.depth_analysis.depth_grade }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strengths -->
+  <div class="analysis-card strengths-card">
+    <div class="card-header">
+      <h3>Team Strengths</h3>
+      <span class="card-icon">💪</span>
+    </div>
+    <div class="strengths-list">
+      {% for strength in analysis.team_strengths %}
+        <div class="strength-item">
+          <span class="strength-icon">✅</span>
+          <span class="strength-text">{{ strength }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Weaknesses -->
+  <div class="analysis-card weaknesses-card">
+    <div class="card-header">
+      <h3>Areas for Improvement</h3>
+      <span class="card-icon">⚠️</span>
+    </div>
+    <div class="weaknesses-list">
+      {% for weakness in analysis.team_weaknesses %}
+        <div class="weakness-item">
+          <span class="weakness-icon">🔧</span>
+          <span class="weakness-text">{{ weakness }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Position Analysis -->
+  <div class="analysis-card position-card">
+    <div class="card-header">
+      <h3>Position Breakdown</h3>
+      <span class="card-icon">📊</span>
+    </div>
+    <div class="position-breakdown">
+      {% for position, count in analysis.position_balance.position_counts.items() %}
+        <div class="position-item">
+          <div class="position-info">
+            <span class="position-name">{{ position }}</span>
+            <span class="position-count">{{ count }} players</span>
+          </div>
+          <div class="position-bar">
+            <div class="position-fill" style="width: {{ (count / 4 * 100) }}%"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Top Players -->
+  <div class="analysis-card players-card">
+    <div class="card-header">
+      <h3>Top Players</h3>
+      <span class="card-icon">⭐</span>
+    </div>
+    <div class="top-players">
+      {% for player_data in analysis.starter_analysis.top_players %}
+        <div class="player-item">
+          <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ player_data.player.external_id }}.jpg" 
+               onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ player_data.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+               alt="{{ player_data.player.name }}" class="player-avatar">
+          <div class="player-details">
+            <div class="player-name">{{ player_data.player.name }}</div>
+            <div class="player-position">{{ player_data.player.position }} • {{ player_data.player.team }}</div>
+            <div class="player-tier tier-{{ player_data.tier }}">{{ player_data.tier.title() }}</div>
+          </div>
+          <div class="player-value">{{ player_data.value }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Insights & Recommendations -->
+  <div class="analysis-card insights-card">
+    <div class="card-header">
+      <h3>Insights & Recommendations</h3>
+      <span class="card-icon">💡</span>
+    </div>
+    <div class="insights-list">
+      {% for insight in analysis.insights %}
+        <div class="insight-item">
+          <span class="insight-icon">🎯</span>
+          <span class="insight-text">{{ insight }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Roster View -->
+<div class="roster-details">
+  <div class="roster-section">
+    <h3>Starting Lineup</h3>
+    <div class="roster-grid">
+      {% for entry in starters %}
+        <div class="roster-player">
+          <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+               onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+               alt="{{ entry.player.name }}" class="player-avatar">
+          <div class="player-info">
+            <div class="player-name">{{ entry.player.name }}</div>
+            <div class="player-details">{{ entry.player.position }} • {{ entry.player.team }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="roster-section">
+    <h3>Bench Players</h3>
+    <div class="roster-grid">
+      {% for entry in bench %}
+        <div class="roster-player">
+          <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+               onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+               alt="{{ entry.player.name }}" class="player-avatar">
+          <div class="player-info">
+            <div class="player-name">{{ entry.player.name }}</div>
+            <div class="player-details">{{ entry.player.position }} • {{ entry.player.team }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.header-content h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.league-name {
+  margin: 0 0 1rem 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.team-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.analysis-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.analysis-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-color);
+}
+
+.card-icon {
+  font-size: 1.5rem;
+}
+
+.overall-grade {
+  font-size: 2rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: white;
+}
+
+.grade-a { background: #10b981; }
+.grade-b { background: #3b82f6; }
+.grade-c { background: #f59e0b; }
+.grade-d { background: #ef4444; }
+.grade-f { background: #6b7280; }
+
+.overview-stats {
+  margin-top: 1rem;
+}
+
+.stat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--secondary-background);
+  border-radius: 0.5rem;
+}
+
+.stat-label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-grade {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.strengths-list, .weaknesses-list, .insights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.strength-item, .weakness-item, .insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--secondary-background);
+  border-radius: 0.5rem;
+}
+
+.strength-icon, .weakness-icon, .insight-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.strength-text, .weakness-text, .insight-text {
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.position-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.position-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.position-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.position-name {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.position-count {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+}
+
+.position-bar {
+  height: 8px;
+  background: var(--secondary-background);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.position-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.3s ease;
+}
+
+.top-players {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--secondary-background);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.player-item:hover {
+  background: var(--hover-background);
+  transform: translateY(-2px);
+}
+
+.player-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}
+
+.player-details {
+  flex: 1;
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.player-position {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+}
+
+.player-tier {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.tier-elite { background: #10b981; color: white; }
+.tier-good { background: #3b82f6; color: white; }
+.tier-average { background: #f59e0b; color: white; }
+.tier-poor { background: #6b7280; color: white; }
+
+.player-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.roster-details {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.roster-section {
+  margin-bottom: 2rem;
+}
+
+.roster-section:last-child {
+  margin-bottom: 0;
+}
+
+.roster-section h3 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.roster-player {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--secondary-background);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.roster-player:hover {
+  background: var(--hover-background);
+  transform: translateY(-2px);
+}
+
+.roster-player .player-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.player-info {
+  flex: 1;
+}
+
+.player-info .player-name {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.player-info .player-details {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+}
+
+@media (max-width: 768px) {
+  .analysis-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .team-stats {
+    justify-content: center;
+  }
+  
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .roster-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}

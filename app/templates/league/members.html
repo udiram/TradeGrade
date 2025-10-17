@@ -13,7 +13,7 @@
   {% for member in members_data %}
     <div class="card">
       <div class="section-title">
-        <h4>{{ member.user.display_name or member.user.email }}</h4>
+        <h4><a href="{{ url_for('league.team_analysis', league_id=league.id, user_id=member.user.id) }}" class="team-link">{{ member.user.display_name or member.user.email }}</a></h4>
         <span class="badge">{{ member.total_players }} players</span>
       </div>
       
@@ -135,6 +135,17 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+}
+
+.team-link {
+  color: var(--text-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.team-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
 }
 
 @media (max-width: 768px) {
