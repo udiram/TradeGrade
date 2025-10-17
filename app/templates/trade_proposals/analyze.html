@@ -181,8 +181,8 @@
         <div class="risk-overview">
           <div class="risk-item">
             <span class="risk-label">Overall Risk Profile</span>
-            <span class="risk-value {{ analysis_data.risk_analysis.risk_assessment }}">
-              {{ analysis_data.risk_analysis.risk_assessment.replace('_', ' ').title() }}
+            <span class="risk-value {{ analysis_data.risk_analysis.risk_assessment if analysis_data.risk_analysis.risk_assessment else 'unknown' }}">
+              {{ analysis_data.risk_analysis.risk_assessment|string|replace('_', ' ')|title if analysis_data.risk_analysis.risk_assessment else 'Unknown' }}
             </span>
           </div>
           <div class="risk-item">
@@ -216,13 +216,13 @@
         <div class="upside-overview">
           <div class="upside-item">
             <span class="upside-label">Upside Assessment</span>
-            <span class="upside-value {{ analysis_data.upside_analysis.upside_potential.upside_assessment }}">
-              {{ analysis_data.upside_analysis.upside_potential.upside_assessment.replace('_', ' ').title() }}
+            <span class="upside-value {{ analysis_data.upside_analysis.upside_potential.upside_assessment if analysis_data.upside_analysis.upside_potential.upside_assessment else 'unknown' }}">
+              {{ analysis_data.upside_analysis.upside_potential.upside_assessment|string|replace('_', ' ')|title if analysis_data.upside_analysis.upside_potential.upside_assessment else 'Unknown' }}
             </span>
           </div>
           <div class="upside-item">
             <span class="upside-label">Projection Trend</span>
-            <span class="upside-value">{{ analysis_data.upside_analysis.upside_potential.projection_change.upside_trend.title() }}</span>
+            <span class="upside-value">{{ analysis_data.upside_analysis.upside_potential.projection_change.upside_trend|title if analysis_data.upside_analysis.upside_potential.projection_change.upside_trend else 'Unknown' }}</span>
           </div>
           <div class="upside-item">
             <span class="upside-label">Avg Projection (Offered)</span>
