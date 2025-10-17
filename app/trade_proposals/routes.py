@@ -192,8 +192,13 @@ def view_proposal(league_id: int, proposal_id: int):
     if proposal.analysis_data:
         try:
             analysis_data = json.loads(proposal.analysis_data)
-        except:
-            analysis_data = {"error": "Could not parse analysis"}
+            print(f"Analysis data parsed: {analysis_data}")
+        except Exception as e:
+            print(f"Failed to parse analysis data: {e}")
+            analysis_data = {"error": f"Could not parse analysis: {str(e)}"}
+    else:
+        print("No analysis data found in proposal")
+        analysis_data = {"error": "No analysis data available"}
     
     return render_template("trade_proposals/view.html", 
                          league_id=league_id, 

@@ -82,9 +82,9 @@
       </div>
     {% endif %}
     
-    {% if analysis_data and not analysis_data.get('error') %}
-      <div class="trade-analysis">
-        <h4>Trade Analysis</h4>
+    <div class="trade-analysis">
+      <h4>Trade Analysis</h4>
+      {% if analysis_data and not analysis_data.get('error') %}
         <div class="analysis-summary">
           <div class="analysis-score">
             <span class="score-label">Trade Score</span>
@@ -102,8 +102,19 @@
             <p>{{ analysis_data.summary }}</p>
           </div>
         {% endif %}
-      </div>
-    {% endif %}
+      {% else %}
+        <div class="analysis-error">
+          <p><strong>Analysis Status:</strong> 
+            {% if analysis_data and analysis_data.get('error') %}
+              {{ analysis_data.error }}
+            {% else %}
+              No analysis data available
+            {% endif %}
+          </p>
+          <p><em>Analysis may still be processing or failed to generate.</em></p>
+        </div>
+      {% endif %}
+    </div>
     
     {% if proposal.status == 'pending' and proposal.recipient_id == current_user.id %}
       <div class="proposal-actions">
@@ -455,6 +466,24 @@
   margin: 0;
   color: var(--text-color);
   line-height: 1.5;
+}
+
+.analysis-error {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: #92400e;
+}
+
+.analysis-error p {
+  margin: 0 0 0.5rem 0;
+}
+
+.analysis-error p:last-child {
+  margin: 0;
+  font-style: italic;
+  opacity: 0.8;
 }
 
 .proposal-actions {
