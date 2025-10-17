@@ -3,35 +3,38 @@
 {% block content %}
 <h3>Trade Analysis</h3>
 <form method="post" id="trade-form">
-  <article class="card">
+  <article class="card trade-section">
     <h5>Players you trade away</h5>
     <p class="muted">Select from your roster</p>
-    <div class="grid">
+    <div class="player-selection">
       {% for p in roster_players %}
-        <label style="display:flex;align-items:center;gap:.5rem">
-          <input type="checkbox" name="offered_ids" value="{{ p.id }}">
-          <span>{{ p.name }}</span>
-          <span class="badge">{{ p.position }}</span>
-          <span class="muted">{{ p.team }}</span>
-        </label>
+        <div class="player-option">
+          <input type="checkbox" name="offered_ids" value="{{ p.id }}" id="offered_{{ p.id }}">
+          <label for="offered_{{ p.id }}">
+            <span class="player-name">{{ p.name }}</span>
+            <span class="player-position">{{ p.position }}</span>
+            <span class="player-team">{{ p.team }}</span>
+          </label>
+        </div>
       {% endfor %}
     </div>
   </article>
 
-  <article class="card">
+  <article class="card trade-section">
     <h5>Players you receive</h5>
     <p class="muted">Search and add players (autocomplete)</p>
-    <div id="requested-list" class="actions"></div>
-    <div class="actions">
-      <input type="text" id="player-search" placeholder="Search players...">
-      <button id="add-player" type="button">Add</button>
+    <div id="requested-list" class="requested-players"></div>
+    <div class="search-section">
+      <div class="search-input-group">
+        <input type="text" id="player-search" placeholder="Search players...">
+        <button id="add-player" type="button">Add</button>
+      </div>
+      <div id="player_suggestions"></div>
     </div>
-    <div id="player_suggestions" style="margin-top: 0.5rem;"></div>
     <input type="hidden" name="requested_ids" id="requested-ids" value="">
   </article>
 
-  <button type="submit">Analyze</button>
-  
+  <button type="submit" class="analyze-btn">Analyze Trade</button>
 </form>
 
 <script>
@@ -95,5 +98,225 @@
     sug.innerHTML = '';
   });
 </script>
+
+<style>
+/* Trade Analysis Mobile Styles */
+#trade-form {
+  max-width: 100%;
+}
+
+.trade-section {
+  margin-bottom: 2rem;
+}
+
+.player-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.player-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.player-option:hover {
+  background: var(--bg-secondary);
+}
+
+.player-option input[type="checkbox"] {
+  margin: 0;
+  transform: scale(1.2);
+}
+
+.player-option label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  cursor: pointer;
+  margin: 0;
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.player-position {
+  background: var(--primary);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.player-team {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.search-section {
+  margin: 1rem 0;
+}
+
+.search-input-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.search-input-group input {
+  flex: 1;
+}
+
+.search-input-group button {
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+.requested-players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  min-height: 40px;
+  padding: 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.requested-players .badge {
+  background: var(--primary);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.requested-players .badge:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.requested-players .badge::after {
+  content: '×';
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+#player_suggestions {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+}
+
+#player_suggestions a {
+  display: block;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+}
+
+#player_suggestions a:hover {
+  background: var(--bg-secondary);
+}
+
+#player_suggestions a:last-child {
+  border-bottom: none;
+}
+
+.analyze-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-top: 2rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .player-selection {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .player-option {
+    padding: 1rem;
+  }
+
+  .player-option label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .player-option input[type="checkbox"] {
+    align-self: flex-start;
+  }
+
+  .search-input-group {
+    flex-direction: column;
+  }
+
+  .search-input-group button {
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  .requested-players {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .requested-players .badge {
+    justify-content: space-between;
+    padding: 0.75rem;
+  }
+
+  #player_suggestions a {
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-option {
+    padding: 0.75rem;
+  }
+
+  .player-option label {
+    gap: 0.5rem;
+  }
+
+  .requested-players .badge {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .analyze-btn {
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
+}
+</style>
 {% endblock %}
 

@@ -1,14 +1,177 @@
 {% extends 'base.html' %}
 {% block title %}Login - TradeGrade{% endblock %}
 {% block content %}
-<h3>Login</h3>
-<form method="post" class="card">
-  <label>Email <input type="email" name="email" required placeholder="you@example.com"></label>
-  <label>Password <input type="password" name="password" required placeholder="••••••••"></label>
-  <div>
-    <button type="submit">Login</button>
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2>Welcome Back</h2>
+      <p class="auth-subtitle">Sign in to your TradeGrade account</p>
+    </div>
+    
+    <form method="post" class="auth-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="you@example.com">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="••••••••">
+      </div>
+      
+      <button type="submit" class="auth-btn">Sign In</button>
+      
+      <div class="auth-footer">
+        <p class="muted">Need an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+      </div>
+    </form>
   </div>
-  <p class="muted">Need an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
-</form>
+</div>
+
+<style>
+.auth-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.auth-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.auth-subtitle {
+  margin: 0;
+  color: var(--muted-color);
+  font-size: 1rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: var(--input-background);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.auth-btn {
+  padding: 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.auth-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-footer a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .auth-container {
+    margin: 1rem auto;
+    padding: 0 0.75rem;
+  }
+
+  .auth-card {
+    padding: 1.5rem;
+  }
+
+  .auth-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .form-group input {
+    padding: 0.875rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .auth-btn {
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 0 0.5rem;
+  }
+
+  .auth-card {
+    padding: 1.25rem;
+  }
+
+  .auth-header h2 {
+    font-size: 1.25rem;
+  }
+}
+</style>
 {% endblock %}
 

@@ -4,41 +4,44 @@
 <div class="section-title">
   <h3>Your Roster</h3>
   <span class="badge">Roster</span>
-  </div>
-<form method="post" action="{{ url_for('roster.add_player', league_id=league_id) }}" class="card">
-  <input type="hidden" name="player_id" id="player_id">
-  <label>Player Name
-    <input type="text" id="player_name" required placeholder="Search players..." autocomplete="off">
-  </label>
-  <div id="player_suggestions" class="muted" style="margin-top: 0.5rem; min-height: 20px;"></div>
-  <div class="grid">
-    <label>Position <input type="text" id="position" disabled></label>
-    <label>Team <input type="text" id="team" disabled></label>
-  </div>
-  <button type="submit">Add Player</button>
-</form>
+</div>
+
+<div class="add-player-section">
+  <form method="post" action="{{ url_for('roster.add_player', league_id=league_id) }}" class="card">
+    <input type="hidden" name="player_id" id="player_id">
+    <label>Player Name
+      <input type="text" id="player_name" required placeholder="Search players..." autocomplete="off">
+    </label>
+    <div id="player_suggestions" class="muted" style="margin-top: 0.5rem; min-height: 20px;"></div>
+    <div class="player-details-grid">
+      <label>Position <input type="text" id="position" disabled></label>
+      <label>Team <input type="text" id="team" disabled></label>
+    </div>
+    <button type="submit" class="add-player-btn">Add Player</button>
+  </form>
+</div>
 
 {% set starters = entries|selectattr('is_starter')|list %}
 {% set bench = entries|rejectattr('is_starter')|list %}
 
-<div class="grid">
+<div class="roster-grid">
   <div class="card">
     <div class="section-title"><h4>Starters</h4><span class="badge">{{ starters|length }}</span></div>
     {% for e in starters %}
       <div class="player-card">
         {% if e.player.external_id == 'easter_egg_rue_arlotta' %}
-          <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ e.player.name }}" style="border-radius: 50%; object-fit: cover;">
+          <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ e.player.name }}">
         {% else %}
           <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ e.player.external_id }}.jpg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827'" alt="{{ e.player.name }}">
         {% endif %}
-        <div style="flex:1;">
-          <strong>{{ e.player.name }}</strong>
-          <div class="muted">{{ e.player.position }} • {{ e.player.team }}</div>
+        <div class="player-info">
+          <div class="player-name">{{ e.player.name }}</div>
+          <div class="player-meta">{{ e.player.position }} • {{ e.player.team }}</div>
         </div>
-        <div class="actions">
-          <button type="button" class="secondary toggle-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Bench</button>
+        <div class="player-actions">
+          <button type="button" class="toggle-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Bench</button>
           <a href="{{ url_for('roster.sit_start', league_id=league_id, player_id=e.player_id) }}">Sit/Start</a>
-          <button type="button" class="secondary remove-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Remove</button>
+          <button type="button" class="remove-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Remove</button>
         </div>
       </div>
     {% else %}
@@ -51,18 +54,18 @@
     {% for e in bench %}
       <div class="player-card">
         {% if e.player.external_id == 'easter_egg_rue_arlotta' %}
-          <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ e.player.name }}" style="border-radius: 50%; object-fit: cover;">
+          <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ e.player.name }}">
         {% else %}
           <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ e.player.external_id }}.jpg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827'" alt="{{ e.player.name }}">
         {% endif %}
-        <div style="flex:1;">
-          <strong>{{ e.player.name }}</strong>
-          <div class="muted">{{ e.player.position }} • {{ e.player.team }}</div>
+        <div class="player-info">
+          <div class="player-name">{{ e.player.name }}</div>
+          <div class="player-meta">{{ e.player.position }} • {{ e.player.team }}</div>
         </div>
-        <div class="actions">
+        <div class="player-actions">
           <button type="button" class="toggle-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Start</button>
           <a href="{{ url_for('roster.sit_start', league_id=league_id, player_id=e.player_id) }}">Sit/Start</a>
-          <button type="button" class="secondary remove-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Remove</button>
+          <button type="button" class="remove-btn" data-entry-id="{{ e.id }}" data-league-id="{{ league_id }}">Remove</button>
         </div>
       </div>
     {% else %}
@@ -250,5 +253,208 @@
     }
   });
 </script>
+
+<style>
+/* Roster-specific mobile styles */
+.add-player-section {
+  margin-bottom: 2rem;
+}
+
+.player-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.add-player-btn {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.roster-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.player-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.player-card:hover {
+  background: var(--bg-secondary);
+  transform: translateY(-1px);
+}
+
+.player-card img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-primary);
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.player-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  word-wrap: break-word;
+}
+
+.player-meta {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.player-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.player-actions button,
+.player-actions a {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  text-align: center;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.player-actions .toggle-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+}
+
+.player-actions .toggle-btn:hover {
+  background: var(--primary-hover);
+}
+
+.player-actions .remove-btn {
+  background: var(--error);
+  color: white;
+  border: none;
+}
+
+.player-actions .remove-btn:hover {
+  background: #dc2626;
+}
+
+.player-actions a {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.player-actions a:hover {
+  background: var(--bg-primary);
+  border-color: var(--primary);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .player-details-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .roster-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .player-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .player-card img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .player-info {
+    text-align: center;
+  }
+
+  .player-actions {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .player-actions button,
+  .player-actions a {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-card {
+    padding: 1rem;
+  }
+
+  .player-card img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .player-actions {
+    flex-direction: column;
+  }
+
+  .player-actions button,
+  .player-actions a {
+    width: 100%;
+    padding: 0.75rem;
+  }
+}
+
+/* Search suggestions mobile styling */
+#player_suggestions a {
+  display: block;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+}
+
+#player_suggestions a:hover {
+  background: var(--bg-secondary);
+}
+
+@media (max-width: 768px) {
+  #player_suggestions a {
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+}
+</style>
 {% endblock %}
 

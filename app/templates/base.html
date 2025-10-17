@@ -266,6 +266,8 @@
         border-radius: var(--radius);
         overflow: hidden;
         box-shadow: var(--shadow);
+        width: 100%;
+        border-collapse: collapse;
       }
 
       th {
@@ -273,15 +275,73 @@
         color: var(--text-primary);
         font-weight: 600;
         padding: 1rem;
+        text-align: left;
+        border-bottom: 2px solid var(--border);
       }
 
       td {
         padding: 1rem;
         border-bottom: 1px solid var(--border);
+        vertical-align: top;
       }
 
       tr:hover {
         background: var(--bg-secondary);
+      }
+
+      /* Responsive Table Wrapper */
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .table-responsive table {
+        margin: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      /* Mobile Table Styles */
+      .mobile-table {
+        display: none;
+      }
+
+      .mobile-table .table-row {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 1rem;
+        padding: 1rem;
+      }
+
+      .mobile-table .table-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .mobile-table .table-cell {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .mobile-table .table-cell:last-child {
+        border-bottom: none;
+      }
+
+      .mobile-table .table-label {
+        font-weight: 600;
+        color: var(--text-secondary);
+        min-width: 100px;
+      }
+
+      .mobile-table .table-value {
+        color: var(--text-primary);
+        text-align: right;
+        flex: 1;
       }
 
       /* Alerts */
@@ -355,20 +415,184 @@
         margin-bottom: 2rem;
       }
 
+      /* Mobile Navigation */
+      .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      .nav-menu {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
+        .container {
+          padding: 0 1rem;
+        }
+
         .grid {
           grid-template-columns: 1fr;
+          gap: 1rem;
         }
         
         .hero h1 {
           font-size: 2rem;
         }
+
+        .hero p {
+          font-size: 1rem;
+        }
+
+        .hero {
+          padding: 2rem 0;
+          margin: 1rem 0;
+        }
         
-        nav ul {
+        /* Mobile Navigation */
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .nav-menu {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--bg-secondary);
+          border-top: 1px solid var(--border);
+          flex-direction: column;
+          padding: 1rem;
+          gap: 0.5rem;
+          box-shadow: var(--shadow-lg);
+        }
+
+        .nav-menu.active {
+          display: flex;
+        }
+
+        .nav-menu li {
+          width: 100%;
+        }
+
+        .nav-menu li a {
+          display: block;
+          width: 100%;
+          text-align: center;
+          padding: 0.75rem 1rem;
+        }
+
+        /* Mobile Cards */
+        .card {
+          padding: 1rem;
+          margin: 0.5rem 0;
+        }
+
+        /* Mobile Forms */
+        input, select, textarea {
+          font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        /* Mobile Tables */
+        .table-responsive {
+          display: none;
+        }
+
+        .mobile-table {
+          display: block;
+        }
+
+        table {
+          font-size: 0.875rem;
+        }
+
+        th, td {
+          padding: 0.5rem;
+        }
+
+        /* Mobile Buttons */
+        button, .btn {
+          min-height: 44px; /* Touch target size */
+          padding: 0.75rem 1rem;
+        }
+
+        /* Mobile Player Cards */
+        .player-card {
+          flex-direction: column;
+          text-align: center;
+          gap: 0.75rem;
+        }
+
+        .player-card img {
+          width: 60px;
+          height: 60px;
+        }
+
+        .actions {
           flex-direction: column;
           gap: 0.5rem;
+          width: 100%;
         }
+
+        .actions button, .actions a {
+          width: 100%;
+          justify-content: center;
+        }
+
+        /* Mobile Typography */
+        h1 { font-size: 1.75rem; }
+        h2 { font-size: 1.5rem; }
+        h3 { font-size: 1.25rem; }
+        h4 { font-size: 1.125rem; }
+
+        /* Mobile Spacing */
+        .section-title {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
+        /* Mobile Alerts */
+        .alert {
+          padding: 0.75rem;
+          font-size: 0.875rem;
+        }
+      }
+
+      /* Extra small devices */
+      @media (max-width: 480px) {
+        .container {
+          padding: 0 0.75rem;
+        }
+
+        .hero h1 {
+          font-size: 1.5rem;
+        }
+
+        .hero p {
+          font-size: 0.875rem;
+        }
+
+        .card {
+          padding: 0.75rem;
+        }
+
+        .player-card img {
+          width: 50px;
+          height: 50px;
+        }
+
+        h1 { font-size: 1.5rem; }
+        h2 { font-size: 1.25rem; }
+        h3 { font-size: 1.125rem; }
       }
 
       /* Loading States */
@@ -393,7 +617,10 @@
       <ul>
         <li><strong><a href="/">TradeGrade</a></strong></li>
       </ul>
-      <ul>
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" title="Toggle menu">
+        <span id="menu-icon">☰</span>
+      </button>
+      <ul class="nav-menu">
         <li><a href="{{ url_for('examples') }}">Examples</a></li>
         <li><a href="{{ url_for('league.dashboard') }}">Dashboard</a></li>
         <li><a href="{{ url_for('auth.login') }}">Login</a></li>
@@ -420,6 +647,27 @@
     <script>
       window.socket = io();
       
+      // Mobile menu toggle functionality
+      function toggleMobileMenu() {
+        const navMenu = document.querySelector('.nav-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        
+        navMenu.classList.toggle('active');
+        menuIcon.textContent = navMenu.classList.contains('active') ? '✕' : '☰';
+      }
+
+      // Close mobile menu when clicking outside
+      document.addEventListener('click', function(e) {
+        const navMenu = document.querySelector('.nav-menu');
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (navMenu && navMenu.classList.contains('active') && 
+            !navMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+          navMenu.classList.remove('active');
+          document.getElementById('menu-icon').textContent = '☰';
+        }
+      });
+
       // Theme toggle functionality
       function toggleTheme() {
         const html = document.documentElement;
