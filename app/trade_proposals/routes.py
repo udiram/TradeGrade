@@ -25,6 +25,16 @@ def list_proposals(league_id: int):
         ((TradeProposal.proposer_id == current_user.id) | (TradeProposal.recipient_id == current_user.id))
     ).order_by(TradeProposal.created_at.desc()).all()
     
+    # Add player data to each proposal
+    for proposal in proposals:
+        # Get offered players
+        offered_entry_ids = proposal.offered_player_ids.split(',')
+        proposal.offered_entries = RosterEntry.query.filter(RosterEntry.id.in_(offered_entry_ids)).all()
+        
+        # Get requested players
+        requested_entry_ids = proposal.requested_player_ids.split(',')
+        proposal.requested_entries = RosterEntry.query.filter(RosterEntry.id.in_(requested_entry_ids)).all()
+    
     return render_template("trade_proposals/list.html", league_id=league_id, proposals=proposals)
 
 
@@ -103,14 +113,39 @@ def create_proposal(league_id: int):
         
         # Generate trade analysis
         try:
-            offered_players = [RosterEntry.query.get(eid).player for eid in offered_entry_ids]
-            requested_players = [RosterEntry.query.get(eid).player for eid in requested_entry_ids]
+            offered_entries = RosterEntry.query.filter(RosterEntry.id.in_(offered_entry_ids)).all()
+            requested_entries = RosterEntry.query.filter(RosterEntry.id.in_(requested_entry_ids)).all()
             
+            # Convert to player dictionaries for analysis
+            offered_players = []
+            for entry in offered_entries:
+                player_dict = {
+                    'name': entry.player.name,
+                    'position': entry.player.position,
+                    'team': entry.player.team,
+                    'external_id': entry.player.external_id
+                }
+                offered_players.append(player_dict)
+            
+            requested_players = []
+            for entry in requested_entries:
+                player_dict = {
+                    'name': entry.player.name,
+                    'position': entry.player.position,
+                    'team': entry.player.team,
+                    'external_id': entry.player.external_id
+                }
+                requested_players.append(player_dict)
+            
+            print(f"Analyzing trade: {len(offered_players)} offered, {len(requested_players)} requested")
             analysis = analyze_trade(offered_players, requested_players)
             proposal.analysis_data = json.dumps(analysis)
+            print(f"Analysis completed: {analysis.get('recommendation', 'Unknown')}")
         except Exception as e:
             print(f"Trade analysis failed: {e}")
-            proposal.analysis_data = json.dumps({"error": "Analysis failed"})
+            import traceback
+            traceback.print_exc()
+            proposal.analysis_data = json.dumps({"error": f"Analysis failed: {str(e)}"})
         
         db.session.add(proposal)
         db.session.commit()

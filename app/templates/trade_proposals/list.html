@@ -50,8 +50,7 @@
           <div class="offered-players">
             <h4>You {% if proposal.proposer_id == current_user.id %}Offer{% else %}Receive{% endif %}</h4>
             <div class="players-list">
-              {% set offered_ids = proposal.offered_player_ids.split(',') %}
-              {% for entry in proposal.offered_entries if entry.id|string in offered_ids %}
+              {% for entry in proposal.offered_entries %}
                 <div class="player-item">
                   {% if entry.player.external_id == 'easter_egg_rue_arlotta' %}
                     <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar" style="border-radius: 50%; object-fit: cover;">
@@ -74,8 +73,7 @@
           <div class="requested-players">
             <h4>You {% if proposal.proposer_id == current_user.id %}Receive{% else %}Give{% endif %}</h4>
             <div class="players-list">
-              {% set requested_ids = proposal.requested_player_ids.split(',') %}
-              {% for entry in proposal.requested_entries if entry.id|string in requested_ids %}
+              {% for entry in proposal.requested_entries %}
                 <div class="player-item">
                   {% if entry.player.external_id == 'easter_egg_rue_arlotta' %}
                     <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar" style="border-radius: 50%; object-fit: cover;">
@@ -98,6 +96,24 @@
           <div class="proposal-message">
             <strong>Message:</strong> {{ proposal.message }}
           </div>
+        {% endif %}
+        
+        {% if proposal.analysis_data %}
+          {% set analysis = proposal.analysis_data | from_json %}
+          {% if analysis and not analysis.get('error') %}
+            <div class="trade-analysis-summary">
+              <div class="analysis-score">
+                <span class="score-label">Trade Score</span>
+                <span class="score-value">{{ "%.1f"|format(analysis.get('numeric_score', 0)) }}</span>
+              </div>
+              <div class="analysis-recommendation">
+                <span class="recommendation-label">Recommendation</span>
+                <span class="recommendation-value {{ analysis.get('recommendation', '').lower() }}">
+                  {{ analysis.get('recommendation', 'Unknown') }}
+                </span>
+              </div>
+            </div>
+          {% endif %}
         {% endif %}
       </div>
     </div>
@@ -399,6 +415,67 @@
   color: var(--text-color);
 }
 
+.trade-analysis-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--secondary-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.analysis-score,
+.analysis-recommendation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.score-label,
+.recommendation-label {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.score-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.recommendation-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recommendation-value.accept {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.recommendation-value.reject {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.recommendation-value.neutral {
+  background: #f3f4f6;
+  color: #374151;
+}
+
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -451,6 +528,10 @@
   .trade-arrow {
     transform: rotate(90deg);
     font-size: 1.5rem;
+  }
+  
+  .trade-analysis-summary {
+    grid-template-columns: 1fr;
   }
 }
 </style>
