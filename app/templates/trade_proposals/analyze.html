@@ -181,8 +181,12 @@
         <div class="risk-overview">
           <div class="risk-item">
             <span class="risk-label">Overall Risk Profile</span>
-            <span class="risk-value {{ analysis_data.risk_analysis.risk_assessment if analysis_data.risk_analysis.risk_assessment else 'unknown' }}">
-              {{ analysis_data.risk_analysis.risk_assessment|string|replace('_', ' ')|title if analysis_data.risk_analysis.risk_assessment else 'Unknown' }}
+            <span class="risk-value {{ analysis_data.risk_analysis.risk_assessment if analysis_data.risk_analysis.risk_assessment and analysis_data.risk_analysis.risk_assessment != 'unknown' else 'unknown' }}">
+              {% if analysis_data.risk_analysis.risk_assessment and analysis_data.risk_analysis.risk_assessment != 'unknown' %}
+                {{ analysis_data.risk_analysis.risk_assessment|string|replace('_', ' ')|title }}
+              {% else %}
+                Unknown
+              {% endif %}
             </span>
           </div>
           <div class="risk-item">
