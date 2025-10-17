@@ -1,15 +1,417 @@
 {% extends 'base.html' %}
 {% block title %}Community Board - TradeGrade{% endblock %}
 {% block content %}
-<h3>Community Board</h3>
-<p><a href="{{ url_for('board.create_post', league_id=league_id) }}">New Post</a></p>
-{% for post in posts %}
-  <article>
-    <header><strong>{{ post.title }}</strong> by {{ post.author.display_name or post.author.email }}</header>
-    <p>{{ post.body }}</p>
-  </article>
-{% else %}
-  <p>No posts yet.</p>
-{% endfor %}
+<div class="board-header">
+  <div class="header-content">
+    <h2>Community Board</h2>
+    <p>Discuss trades, strategy, and league news with your fellow managers</p>
+  </div>
+  <a href="{{ url_for('board.create_post', league_id=league_id) }}" class="new-post-btn">
+    <span class="icon">✏️</span>
+    <span>New Post</span>
+  </a>
+</div>
+
+<div class="posts-container">
+  {% for post in posts %}
+    <article class="post-card">
+      <div class="post-header">
+        <div class="post-meta">
+          <h3 class="post-title">{{ post.title }}</h3>
+          <div class="post-author">
+            <span class="author-name">{{ post.author.display_name or post.author.email }}</span>
+            <span class="post-date">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+          </div>
+        </div>
+        {% if post.author_id == current_user.id %}
+          <div class="post-actions">
+            <a href="{{ url_for('board.edit_post', league_id=league_id, post_id=post.id) }}" class="action-btn edit-btn">
+              <span class="icon">✏️</span>
+              <span>Edit</span>
+            </a>
+            <button type="button" class="action-btn delete-btn" onclick="deletePost({{ post.id }})">
+              <span class="icon">🗑️</span>
+              <span>Delete</span>
+            </button>
+          </div>
+        {% endif %}
+      </div>
+      <div class="post-content">
+        {{ post.body | safe }}
+      </div>
+    </article>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">💬</div>
+      <h3>No posts yet</h3>
+      <p>Be the first to start a conversation in your league!</p>
+      <a href="{{ url_for('board.create_post', league_id=league_id) }}" class="action-btn primary">Create First Post</a>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3>Delete Post</h3>
+    <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="action-btn secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button type="button" class="action-btn danger" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.header-content h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-content p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.new-post-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.new-post-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.posts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.post-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.post-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.post-meta {
+  flex: 1;
+}
+
+.post-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.post-author {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.author-name {
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+
+.post-date {
+  font-size: 0.8rem;
+  color: var(--muted-color);
+}
+
+.post-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.action-btn.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.action-btn.secondary {
+  background: var(--secondary-background);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.action-btn.secondary:hover {
+  background: var(--hover-background);
+  border-color: var(--primary);
+}
+
+.action-btn.edit-btn {
+  background: var(--secondary-background);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.action-btn.edit-btn:hover {
+  background: var(--hover-background);
+  border-color: var(--primary);
+}
+
+.action-btn.delete-btn {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.action-btn.delete-btn:hover {
+  background: #fecaca;
+  border-color: #dc2626;
+}
+
+.action-btn.danger {
+  background: #dc2626;
+  color: white;
+}
+
+.action-btn.danger:hover {
+  background: #b91c1c;
+}
+
+.post-content {
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.post-content p {
+  margin: 0 0 1rem 0;
+}
+
+.post-content p:last-child {
+  margin-bottom: 0;
+}
+
+.mention-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  background: rgba(var(--primary-rgb), 0.1);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.mention-link:hover {
+  background: rgba(var(--primary-rgb), 0.2);
+  text-decoration: underline;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--card-background);
+  border: 2px dashed var(--border-color);
+  border-radius: 1rem;
+  margin-top: 2rem;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+}
+
+.empty-state p {
+  margin: 0 0 2rem 0;
+  color: var(--muted-color);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--card-background);
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+}
+
+.modal-content p {
+  margin: 0 0 2rem 0;
+  color: var(--muted-color);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .board-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .post-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .post-actions {
+    justify-content: center;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
+<script>
+let postToDelete = null;
+
+function deletePost(postId) {
+  postToDelete = postId;
+  document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+  postToDelete = null;
+  document.getElementById('deleteModal').style.display = 'none';
+}
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+  if (!postToDelete) return;
+  
+  try {
+    const response = await fetch(`/board/{{ league_id }}/delete/${postToDelete}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        // Remove the post from the DOM
+        const postCard = document.querySelector(`[onclick="deletePost(${postToDelete})"]`).closest('.post-card');
+        postCard.remove();
+        closeDeleteModal();
+      } else {
+        alert('Error: ' + (data.error || 'Failed to delete post'));
+      }
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Failed to delete post');
+  }
+});
+
+// Close modal when clicking outside
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeDeleteModal();
+  }
+});
+</script>
 {% endblock %}
 

@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}New Post - TradeGrade{% endblock %}
+{% block title %}Edit Post - TradeGrade{% endblock %}
 {% block content %}
 <div class="post-header">
   <div class="header-content">
-    <h2>Create New Post</h2>
-    <p>Share your thoughts, trade ideas, or league updates with your fellow managers</p>
+    <h2>Edit Post</h2>
+    <p>Update your post content and member tags</p>
   </div>
   <a href="{{ url_for('board.list_posts', league_id=league_id) }}" class="back-btn">← Back to Board</a>
 </div>
@@ -13,19 +13,19 @@
   <div class="form-card">
     <div class="form-header">
       <div class="form-icon">✏️</div>
-      <h3>Post Details</h3>
+      <h3>Edit Post Details</h3>
     </div>
     
     <form method="post" class="post-form">
       <div class="form-group">
         <label for="title">Post Title</label>
-        <input type="text" id="title" name="title" required placeholder="Enter a descriptive title" autocomplete="off">
+        <input type="text" id="title" name="title" required placeholder="Enter a descriptive title" value="{{ post.title }}" autocomplete="off">
         <small>Choose a clear, descriptive title for your post</small>
       </div>
       
       <div class="form-group">
         <label for="body">Post Content</label>
-        <textarea id="body" name="body" required placeholder="Share your thoughts, trade ideas, or league updates..." rows="8"></textarea>
+        <textarea id="body" name="body" required placeholder="Share your thoughts, trade ideas, or league updates..." rows="8">{{ post.body | replace('<a href="/league/' + league_id|string + '/team/', '') | replace('" class="mention-link">@', '') | replace('</a>', '') | replace('@', '@') }}</textarea>
         <small>Use @username to tag league members (e.g., @john, @sarah)</small>
       </div>
       
@@ -44,35 +44,35 @@
       
       <div class="form-actions">
         <button type="submit" class="submit-btn">
-          <span class="icon">📝</span>
-          <span>Publish Post</span>
+          <span class="icon">💾</span>
+          <span>Update Post</span>
         </button>
       </div>
     </form>
   </div>
   
   <div class="info-card">
-    <h4>Posting Guidelines</h4>
+    <h4>Editing Guidelines</h4>
     <ul class="guidelines-list">
       <li>
-        <span class="guideline-icon">💡</span>
+        <span class="guideline-icon">✏️</span>
         <div>
-          <strong>Be constructive</strong>
-          <p>Share helpful trade ideas and strategic insights</p>
+          <strong>Update content</strong>
+          <p>Modify your post title and content as needed</p>
         </div>
       </li>
       <li>
         <span class="guideline-icon">🏷️</span>
         <div>
-          <strong>Tag members</strong>
-          <p>Use @username to mention specific league members</p>
+          <strong>Manage tags</strong>
+          <p>Add or remove @mentions to league members</p>
         </div>
       </li>
       <li>
-        <span class="guideline-icon">🤝</span>
+        <span class="guideline-icon">📝</span>
         <div>
-          <strong>Stay respectful</strong>
-          <p>Keep discussions friendly and sportsmanlike</p>
+          <strong>Edit history</strong>
+          <p>Your post will show as edited with the new timestamp</p>
         </div>
       </li>
     </ul>
@@ -429,4 +429,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
-
