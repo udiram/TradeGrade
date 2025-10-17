@@ -354,10 +354,17 @@ def analyze_proposal(league_id: int, proposal_id: int):
     analysis_data = {}
     if proposal.analysis_data:
         try:
-            analysis_data = json.loads(proposal.analysis_data)
+            # Check if it's already a dict or needs parsing
+            if isinstance(proposal.analysis_data, dict):
+                analysis_data = proposal.analysis_data
+            else:
+                analysis_data = json.loads(proposal.analysis_data)
             print(f"Loaded existing analysis: {analysis_data.get('recommendation', 'Unknown')}")
+            print(f"Analysis data type: {type(analysis_data)}")
+            print(f"Risk analysis available: {'risk_analysis' in analysis_data}")
         except Exception as e:
             print(f"Failed to parse existing analysis: {e}")
+            print(f"Raw analysis data: {proposal.analysis_data}")
             analysis_data = {"error": f"Could not parse analysis: {str(e)}"}
     else:
         print("No existing analysis data found")

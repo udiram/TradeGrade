@@ -82,6 +82,15 @@
     </div>
   </div>
 
+  <!-- Debug Info -->
+  <div class="debug-info" style="background: #f3f4f6; padding: 1rem; margin: 1rem 0; border-radius: 0.5rem; font-family: monospace; font-size: 0.875rem;">
+    <strong>Debug Info:</strong><br>
+    Analysis data type: {{ analysis_data.__class__.__name__ }}<br>
+    Has risk_analysis: {{ 'risk_analysis' in analysis_data if analysis_data else 'N/A' }}<br>
+    Risk analysis type: {{ analysis_data.risk_analysis.__class__.__name__ if analysis_data and analysis_data.get('risk_analysis') else 'N/A' }}<br>
+    Raw risk analysis: {{ analysis_data.risk_analysis if analysis_data and analysis_data.get('risk_analysis') else 'N/A' }}
+  </div>
+
   <!-- Analysis Results -->
   {% if analysis_data and not analysis_data.get('error') %}
     <!-- Main Analysis Summary -->
