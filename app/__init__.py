@@ -58,6 +58,10 @@ def register_routes(app: Flask) -> None:
     def index():
         return render_template("index.html")
 
+    @app.route("/health")
+    def health_check():
+        return {"status": "healthy", "message": "TradeGrade is running!"}
+
     @socketio.on('join')
     def on_join(data):
         room = data.get('room')
@@ -79,15 +83,30 @@ def register_routes(app: Flask) -> None:
 
 def run_startup_tasks(app: Flask) -> None:
     with app.app_context():
-        from .services.players import warm_players_cache, sync_active_players_into_db, purge_non_nfl_players
-        from .models import Player
-        
-        # Warm the cache first
-        warm_players_cache()
-        
-        # Sync all active NFL players to database
-        print("Syncing NFL players to database...")
-        removed = purge_non_nfl_players(db, Player)
-        added = sync_active_players_into_db(db, Player)
-        print(f"Player sync complete: {removed} removed, {added} added")
+        try:
+            # Check if tables exist before running startup tasks
+            from sqlalchemy import inspect
+            inspector = inspect(db.engine)
+            existing_tables = inspector.get_table_names()
+            
+            if not existing_tables:
+                print("No database tables found. Skipping startup tasks.")
+                return
+                
+            from .services.players import warm_players_cache, sync_active_players_into_db, purge_non_nfl_players
+            from .models import Player
+            
+            # Warm the cache first
+            print("Warming players cache...")
+            warm_players_cache()
+            
+            # Sync all active NFL players to database
+            print("Syncing NFL players to database...")
+            removed = purge_non_nfl_players(db, Player)
+            added = sync_active_players_into_db(db, Player)
+            print(f"Player sync complete: {removed} removed, {added} added")
+            
+        except Exception as e:
+            print(f"Startup tasks failed (this is OK for first deployment): {e}")
+            # Don't fail the app startup if these tasks fail
 

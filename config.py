@@ -46,7 +46,12 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    # Railway uses DATABASE_URL, but also check for other common names
+    SQLALCHEMY_DATABASE_URI = (
+        os.environ.get("DATABASE_URL") or 
+        os.environ.get("POSTGRES_URL") or 
+        os.environ.get("SQLALCHEMY_DATABASE_URI")
+    )
     
     # Production-specific settings
     if not SQLALCHEMY_DATABASE_URI:
