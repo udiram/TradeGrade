@@ -252,7 +252,9 @@ def analyze_trade(offered: List[Dict], requested: List[Dict]) -> Dict:
             "offered_avg_risk": round(off_risk, 3),
             "requested_avg_risk": round(req_risk, 3),
             "risk_delta": round(risk_delta, 3),
-            "risk_assessment": risk_assessment,
+            "risk_assessment": risk_assessment.get("risk_assessment", "unknown"),
+            "injury_risk_change": risk_assessment.get("injury_risk_change", {}),
+            "high_risk_players": risk_assessment.get("high_risk_players", {}),
         },
         
         # Upside analysis
