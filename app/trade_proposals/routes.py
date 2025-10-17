@@ -322,6 +322,55 @@ def cancel_proposal(league_id: int, proposal_id: int):
     return redirect(url_for("trade_proposals.list_proposals", league_id=league_id))
 
 
+@trade_proposals_bp.route("/<int:league_id>/analyze/<int:proposal_id>")
+@login_required
+def analyze_proposal(league_id: int, proposal_id: int):
+    """Detailed trade analysis page"""
+    # Check membership
+    membership = Membership.query.filter_by(user_id=current_user.id, league_id=league_id).first()
+    if not membership:
+        flash("You are not a member of this league", "danger")
+        return redirect(url_for("league.dashboard"))
+    
+    # Get proposal
+    proposal = TradeProposal.query.filter_by(
+        id=proposal_id, 
+        league_id=league_id
+    ).first_or_404()
+    
+    # Check if user is involved in this trade
+    if proposal.proposer_id != current_user.id and proposal.recipient_id != current_user.id:
+        flash("You are not authorized to view this trade proposal", "danger")
+        return redirect(url_for("trade_proposals.list_proposals", league_id=league_id))
+    
+    # Get player details
+    offered_entry_ids = proposal.offered_player_ids.split(',')
+    requested_entry_ids = proposal.requested_player_ids.split(',')
+    
+    offered_entries = RosterEntry.query.filter(RosterEntry.id.in_(offered_entry_ids)).all()
+    requested_entries = RosterEntry.query.filter(RosterEntry.id.in_(requested_entry_ids)).all()
+    
+    # Parse existing analysis data
+    analysis_data = {}
+    if proposal.analysis_data:
+        try:
+            analysis_data = json.loads(proposal.analysis_data)
+            print(f"Loaded existing analysis: {analysis_data.get('recommendation', 'Unknown')}")
+        except Exception as e:
+            print(f"Failed to parse existing analysis: {e}")
+            analysis_data = {"error": f"Could not parse analysis: {str(e)}"}
+    else:
+        print("No existing analysis data found")
+        analysis_data = {"error": "No analysis data available"}
+    
+    return render_template("trade_proposals/analyze.html", 
+                         league_id=league_id, 
+                         proposal=proposal,
+                         offered_entries=offered_entries,
+                         requested_entries=requested_entries,
+                         analysis_data=analysis_data)
+
+
 def execute_trade(proposal):
     """Execute a trade by swapping players between rosters"""
     offered_entry_ids = proposal.offered_player_ids.split(',')

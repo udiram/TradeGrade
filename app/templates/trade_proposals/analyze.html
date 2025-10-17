@@ -1,0 +1,966 @@
+{% extends "base.html" %}
+
+{% block title %}Trade Analysis - {{ proposal.proposer.display_name or proposal.proposer.email }} vs {{ proposal.recipient.display_name or proposal.recipient.email }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>📊 Trade Analysis</h1>
+      <p class="header-subtitle">Comprehensive analysis of trade proposal</p>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('trade_proposals.list_proposals', league_id=league_id) }}" class="btn btn-secondary">
+        <span class="icon">←</span>
+        Back to Proposals
+      </a>
+    </div>
+  </div>
+
+  <!-- Trade Participants -->
+  <div class="trade-participants">
+    <div class="participant">
+      <div class="participant-info">
+        <h3>{{ proposal.proposer.display_name or proposal.proposer.email }}</h3>
+        <span class="participant-role">Proposer</span>
+      </div>
+    </div>
+    <div class="trade-arrow">⇄</div>
+    <div class="participant">
+      <div class="participant-info">
+        <h3>{{ proposal.recipient.display_name or proposal.recipient.email }}</h3>
+        <span class="participant-role">Recipient</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trade Overview -->
+  <div class="trade-overview-section">
+    <h2>🏈 Trade Overview</h2>
+    <div class="trade-comparison">
+      <div class="trade-side">
+        <h3>Players Offered</h3>
+        <div class="player-list">
+          {% for entry in offered_entries %}
+          <div class="player-card">
+            {% if entry.player.name == 'Rue Arlotta' %}
+              <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar">
+            {% else %}
+              <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                   onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                   alt="{{ entry.player.name }}" class="player-avatar">
+            {% endif %}
+            <div class="player-details">
+              <div class="player-name">{{ entry.player.name }}</div>
+              <div class="player-meta">{{ entry.player.position }} • {{ entry.player.team }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <div class="trade-side">
+        <h3>Players Requested</h3>
+        <div class="player-list">
+          {% for entry in requested_entries %}
+          <div class="player-card">
+            {% if entry.player.name == 'Rue Arlotta' %}
+              <img src="{{ url_for('static', filename='rue.png') }}" alt="{{ entry.player.name }}" class="player-avatar">
+            {% else %}
+              <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ entry.player.external_id }}.jpg" 
+                   onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ entry.player.name | urlencode }}&background=f3f4f6&color=111827'" 
+                   alt="{{ entry.player.name }}" class="player-avatar">
+            {% endif %}
+            <div class="player-details">
+              <div class="player-name">{{ entry.player.name }}</div>
+              <div class="player-meta">{{ entry.player.position }} • {{ entry.player.team }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis Results -->
+  {% if analysis_data and not analysis_data.get('error') %}
+    <!-- Main Analysis Summary -->
+    <div class="analysis-summary-section">
+      <h2>📊 Analysis Summary</h2>
+      <div class="analysis-summary">
+        <div class="analysis-score">
+          <span class="score-label">Trade Score</span>
+          <span class="score-value">{{ "%.1f"|format(analysis_data.get('numeric_score', 0)) }}</span>
+        </div>
+        <div class="analysis-recommendation">
+          <span class="recommendation-label">Recommendation</span>
+          <span class="recommendation-value {{ analysis_data.get('recommendation', '').lower() }}">
+            {{ analysis_data.get('recommendation', 'Unknown') }}
+          </span>
+        </div>
+        <div class="confidence-score">
+          <span class="confidence-label">Confidence</span>
+          <span class="confidence-value">{{ analysis_data.get('confidence_score', 50) }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trade Overview Metrics -->
+    {% if analysis_data.get('trade_overview') %}
+    <div class="analysis-section">
+      <h3>📈 Trade Metrics</h3>
+      <div class="overview-grid">
+        <div class="overview-item">
+          <span class="overview-label">Players Offered</span>
+          <span class="overview-value">{{ analysis_data.trade_overview.total_players_offered }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Players Requested</span>
+          <span class="overview-value">{{ analysis_data.trade_overview.total_players_requested }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Value per Player (Offered)</span>
+          <span class="overview-value">{{ "%.1f"|format(analysis_data.trade_overview.value_per_player_offered) }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Value per Player (Requested)</span>
+          <span class="overview-value">{{ "%.1f"|format(analysis_data.trade_overview.value_per_player_requested) }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Total Value Offered</span>
+          <span class="overview-value">{{ "%.1f"|format(analysis_data.get('offered_total', 0)) }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Total Value Requested</span>
+          <span class="overview-value">{{ "%.1f"|format(analysis_data.get('requested_total', 0)) }}</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Position Analysis -->
+    {% if analysis_data.get('position_analysis') and analysis_data.position_analysis.get('balance') %}
+    <div class="analysis-section">
+      <h3>🏈 Position Impact Analysis</h3>
+      <div class="position-analysis-grid">
+        {% for pos, balance in analysis_data.position_analysis.balance.items() %}
+        <div class="position-analysis-item">
+          <div class="position-header">
+            <span class="position-name">{{ pos }}</span>
+            <span class="position-change {{ balance.balance_status }}">
+              {{ balance.balance_status }} {{ balance.net_change|abs }} player(s)
+            </span>
+          </div>
+          <div class="position-details">
+            <div class="position-detail">
+              <span class="detail-label">Offered:</span>
+              <span class="detail-value">{{ balance.offered }}</span>
+            </div>
+            <div class="position-detail">
+              <span class="detail-label">Requested:</span>
+              <span class="detail-value">{{ balance.requested }}</span>
+            </div>
+            <div class="position-detail">
+              <span class="detail-label">Net Change:</span>
+              <span class="detail-value {{ 'positive' if balance.net_change > 0 else 'negative' if balance.net_change < 0 else 'neutral' }}">
+                {{ balance.net_change:+d }}
+              </span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Risk Analysis -->
+    {% if analysis_data.get('risk_analysis') and analysis_data.risk_analysis.get('risk_assessment') %}
+    <div class="analysis-section">
+      <h3>⚠️ Risk Assessment</h3>
+      <div class="risk-analysis-grid">
+        <div class="risk-overview">
+          <div class="risk-item">
+            <span class="risk-label">Overall Risk Profile</span>
+            <span class="risk-value {{ analysis_data.risk_analysis.risk_assessment }}">
+              {{ analysis_data.risk_analysis.risk_assessment.replace('_', ' ').title() }}
+            </span>
+          </div>
+          <div class="risk-item">
+            <span class="risk-label">Average Risk (Offered)</span>
+            <span class="risk-value">{{ "%.1f"|format(analysis_data.risk_analysis.offered_avg_risk * 100) }}%</span>
+          </div>
+          <div class="risk-item">
+            <span class="risk-label">Average Risk (Requested)</span>
+            <span class="risk-value">{{ "%.1f"|format(analysis_data.risk_analysis.requested_avg_risk * 100) }}%</span>
+          </div>
+        </div>
+        {% if analysis_data.risk_analysis.get('high_risk_players', {}).get('requested') %}
+        <div class="high-risk-players">
+          <h4>High-Risk Players (Risk > 30%)</h4>
+          <div class="risk-players-list">
+            {% for player in analysis_data.risk_analysis.high_risk_players.requested %}
+            <span class="risk-player-tag">{{ player }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Upside Analysis -->
+    {% if analysis_data.get('upside_analysis') and analysis_data.upside_analysis.get('upside_potential') %}
+    <div class="analysis-section">
+      <h3>🚀 Upside Potential Analysis</h3>
+      <div class="upside-analysis-grid">
+        <div class="upside-overview">
+          <div class="upside-item">
+            <span class="upside-label">Upside Assessment</span>
+            <span class="upside-value {{ analysis_data.upside_analysis.upside_potential.upside_assessment }}">
+              {{ analysis_data.upside_analysis.upside_potential.upside_assessment.replace('_', ' ').title() }}
+            </span>
+          </div>
+          <div class="upside-item">
+            <span class="upside-label">Projection Trend</span>
+            <span class="upside-value">{{ analysis_data.upside_analysis.upside_potential.projection_change.upside_trend.title() }}</span>
+          </div>
+          <div class="upside-item">
+            <span class="upside-label">Avg Projection (Offered)</span>
+            <span class="upside-value">{{ "%.1f"|format(analysis_data.upside_analysis.offered_avg_projection) }}</span>
+          </div>
+          <div class="upside-item">
+            <span class="upside-label">Avg Projection (Requested)</span>
+            <span class="upside-value">{{ "%.1f"|format(analysis_data.upside_analysis.requested_avg_projection) }}</span>
+          </div>
+        </div>
+        <div class="ceiling-floor-analysis">
+          <h4>Ceiling & Floor Analysis</h4>
+          <div class="ceiling-floor-grid">
+            <div class="ceiling-floor-item">
+              <span class="cf-label">Highest Ceiling (Offered)</span>
+              <span class="cf-value">{{ "%.1f"|format(analysis_data.upside_analysis.upside_potential.ceiling_analysis.offered_ceiling) }}</span>
+            </div>
+            <div class="ceiling-floor-item">
+              <span class="cf-label">Highest Ceiling (Requested)</span>
+              <span class="cf-value">{{ "%.1f"|format(analysis_data.upside_analysis.upside_potential.ceiling_analysis.requested_ceiling) }}</span>
+            </div>
+            <div class="ceiling-floor-item">
+              <span class="cf-label">Lowest Floor (Offered)</span>
+              <span class="cf-value">{{ "%.1f"|format(analysis_data.upside_analysis.upside_potential.ceiling_analysis.floor_analysis.offered_floor) }}</span>
+            </div>
+            <div class="ceiling-floor-item">
+              <span class="cf-label">Lowest Floor (Requested)</span>
+              <span class="cf-value">{{ "%.1f"|format(analysis_data.upside_analysis.upside_potential.ceiling_analysis.floor_analysis.requested_floor) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Key Factors -->
+    {% if analysis_data.get('key_factors') %}
+    <div class="analysis-section">
+      <h3>🔑 Key Factors</h3>
+      <div class="key-factors-grid">
+        {% for factor in analysis_data.key_factors %}
+        <div class="key-factor-item">
+          <span class="factor-icon">💡</span>
+          <span class="factor-text">{{ factor }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Comprehensive Summary -->
+    {% if analysis_data.get('summary') %}
+    <div class="analysis-section">
+      <h3>📋 Comprehensive Analysis</h3>
+      <div class="comprehensive-summary">
+        {{ analysis_data.summary|replace('\n', '<br>')|safe }}
+      </div>
+    </div>
+    {% endif %}
+
+  {% else %}
+    <div class="analysis-error">
+      <h3>❌ Analysis Unavailable</h3>
+      <p><strong>Status:</strong> 
+        {% if analysis_data and analysis_data.get('error') %}
+          {{ analysis_data.error }}
+        {% else %}
+          No analysis data available
+        {% endif %}
+      </p>
+      <p><em>Analysis may still be processing or failed to generate.</em></p>
+    </div>
+  {% endif %}
+
+  <!-- Action Buttons -->
+  <div class="analysis-actions">
+    <a href="{{ url_for('trade_proposals.view_proposal', league_id=league_id, proposal_id=proposal.id) }}" class="btn btn-primary">
+      <span class="icon">👁️</span>
+      View Full Proposal
+    </a>
+    {% if proposal.status == 'pending' and proposal.recipient_id == current_user.id %}
+    <a href="{{ url_for('trade_proposals.view_proposal', league_id=league_id, proposal_id=proposal.id) }}" class="btn btn-success">
+      <span class="icon">✅</span>
+      Respond to Trade
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+/* Page Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.header-content h1 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 2rem;
+}
+
+.header-subtitle {
+  margin: 0.5rem 0 0 0;
+  color: var(--muted-color);
+}
+
+/* Trade Participants */
+.trade-participants {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--secondary-background);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.participant {
+  text-align: center;
+}
+
+.participant-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.participant-role {
+  color: var(--muted-color);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trade-arrow {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+/* Trade Overview */
+.trade-overview-section {
+  margin-bottom: 2rem;
+}
+
+.trade-overview-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
+  font-size: 1.5rem;
+}
+
+.trade-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.trade-side h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1.125rem;
+  text-align: center;
+}
+
+.player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.player-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--card-background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.player-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.player-details {
+  flex: 1;
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.player-meta {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+}
+
+/* Analysis Sections */
+.analysis-summary-section {
+  margin-bottom: 2rem;
+}
+
+.analysis-summary-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
+  font-size: 1.5rem;
+}
+
+.analysis-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.analysis-score,
+.analysis-recommendation,
+.confidence-score {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--card-background);
+  border-radius: 1rem;
+  border: 2px solid var(--border-color);
+}
+
+.score-label,
+.recommendation-label,
+.confidence-label {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.score-value,
+.confidence-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.recommendation-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recommendation-value.accept {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.recommendation-value.decline {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.recommendation-value.neutral {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.analysis-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--secondary-background);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.analysis-section h3 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+/* Overview Grid */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.overview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+  padding: 1rem;
+  background: var(--card-background);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+.overview-label {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.overview-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* Position Analysis */
+.position-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.position-analysis-item {
+  padding: 1rem;
+  background: var(--card-background);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+.position-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.position-name {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.position-change {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.position-change.gaining {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.position-change.losing {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.position-change.neutral {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.position-details {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.position-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.detail-value.positive {
+  color: #059669;
+}
+
+.detail-value.negative {
+  color: #dc2626;
+}
+
+.detail-value.neutral {
+  color: var(--muted-color);
+}
+
+/* Risk Analysis */
+.risk-analysis-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.risk-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.risk-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--card-background);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.risk-label {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.risk-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.risk-value.higher_risk {
+  color: #dc2626;
+}
+
+.risk-value.lower_risk {
+  color: #059669;
+}
+
+.risk-value.similar_risk {
+  color: var(--muted-color);
+}
+
+.high-risk-players h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.risk-players-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.risk-player-tag {
+  padding: 0.25rem 0.75rem;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Upside Analysis */
+.upside-analysis-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.upside-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.upside-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--card-background);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.upside-label {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.upside-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.upside-value.higher_upside {
+  color: #059669;
+}
+
+.upside-value.lower_upside {
+  color: #dc2626;
+}
+
+.upside-value.similar_upside {
+  color: var(--muted-color);
+}
+
+.ceiling-floor-analysis h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.ceiling-floor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.ceiling-floor-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--card-background);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.cf-label {
+  font-size: 0.875rem;
+  color: var(--muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.cf-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* Key Factors */
+.key-factors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.key-factor-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--card-background);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+.factor-icon {
+  font-size: 1.25rem;
+}
+
+.factor-text {
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+/* Comprehensive Summary */
+.comprehensive-summary {
+  background: var(--card-background);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  white-space: pre-line;
+  font-size: 1rem;
+}
+
+/* Analysis Error */
+.analysis-error {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.analysis-error h3 {
+  margin: 0 0 1rem 0;
+  color: #92400e;
+}
+
+.analysis-error p {
+  margin: 0.5rem 0;
+  color: #92400e;
+}
+
+/* Action Buttons */
+.analysis-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--secondary-background);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--hover-background);
+  border-color: var(--primary);
+}
+
+.btn-success {
+  background: #059669;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #047857;
+  transform: translateY(-1px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .trade-participants {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .trade-arrow {
+    transform: rotate(90deg);
+  }
+  
+  .trade-comparison {
+    grid-template-columns: 1fr;
+  }
+  
+  .analysis-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .position-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .risk-overview,
+  .upside-overview,
+  .ceiling-floor-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .key-factors-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analysis-actions {
+    flex-direction: column;
+  }
+}
+</style>
+{% endblock %}

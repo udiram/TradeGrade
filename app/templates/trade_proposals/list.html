@@ -30,6 +30,10 @@
           </div>
         </div>
         <div class="proposal-actions">
+          <a href="{{ url_for('trade_proposals.analyze_proposal', league_id=league_id, proposal_id=proposal.id) }}" class="action-btn analyze-btn">
+            <span class="icon">📊</span>
+            <span>Analyze</span>
+          </a>
           <a href="{{ url_for('trade_proposals.view_proposal', league_id=league_id, proposal_id=proposal.id) }}" class="action-btn view-btn">
             <span class="icon">👁️</span>
             <span>View</span>
@@ -303,6 +307,17 @@
 .action-btn.primary:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
+}
+
+.action-btn.analyze-btn {
+  background: #8b5cf6;
+  color: white;
+  border-color: #8b5cf6;
+}
+
+.action-btn.analyze-btn:hover {
+  background: #7c3aed;
+  border-color: #7c3aed;
 }
 
 .action-btn.view-btn {
