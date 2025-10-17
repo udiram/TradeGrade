@@ -50,6 +50,7 @@ def register_blueprints(app: Flask) -> None:
     from .board.routes import board_bp
     from .api.routes import api_bp
     from .trade_proposals.routes import trade_proposals_bp
+    from .activity.routes import activity_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(league_bp)
@@ -58,6 +59,7 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(board_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(trade_proposals_bp)
+    app.register_blueprint(activity_bp)
 
 
 def register_routes(app: Flask) -> None:

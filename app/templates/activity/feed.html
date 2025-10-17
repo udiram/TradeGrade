@@ -1,0 +1,547 @@
+{% extends "base.html" %}
+
+{% block title %}Activity Feed - {{ league.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>📊 League Activity Feed</h1>
+      <p class="header-subtitle">Stay updated on all league activity in real-time</p>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('league.dashboard') }}" class="btn btn-secondary">
+        <span class="icon">←</span>
+        Back to Dashboard
+      </a>
+      <button class="btn btn-primary" onclick="refreshFeed()">
+        <span class="icon">🔄</span>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Activity Feed -->
+  <div class="activity-feed">
+    <div class="feed-header">
+      <h2>{{ league.name }} Activity</h2>
+      <div class="feed-controls">
+        <div class="auto-refresh">
+          <label>
+            <input type="checkbox" id="auto-refresh" checked>
+            Auto-refresh (30s)
+          </label>
+        </div>
+        <div class="activity-count">
+          <span id="activity-count">{{ activities|length }}</span> activities
+        </div>
+      </div>
+    </div>
+
+    <div class="activities-container" id="activities-container">
+      {% if activities %}
+        {% for activity in activities %}
+        <div class="activity-item {{ activity.color_class }}" data-activity-id="{{ activity.id }}">
+          <div class="activity-icon">
+            {{ activity.icon }}
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <div class="activity-title">{{ activity.title }}</div>
+              <div class="activity-time">{{ activity.time_ago }}</div>
+            </div>
+            <div class="activity-description">
+              {{ activity.description|safe }}
+            </div>
+            {% if activity.user_id %}
+            <div class="activity-user">
+              <span class="user-avatar">👤</span>
+              <span class="user-name">{{ activity.user }}</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-activities">
+          <div class="no-activities-icon">📭</div>
+          <h3>No Activity Yet</h3>
+          <p>League activity will appear here as members make trades, add players, and post messages.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Loading indicator -->
+    <div class="loading-indicator" id="loading-indicator" style="display: none;">
+      <div class="spinner"></div>
+      <span>Loading new activities...</span>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Page Layout */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.header-content h1 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-subtitle {
+  margin: 0.5rem 0 0 0;
+  color: var(--muted-color);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Activity Feed */
+.activity-feed {
+  background: var(--card-background);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: var(--secondary-background);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.feed-header h2 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.feed-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.auto-refresh label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.activity-count {
+  color: var(--muted-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Activities Container */
+.activities-container {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.activity-item:hover {
+  background: var(--hover-background);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  font-size: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--secondary-background);
+  flex-shrink: 0;
+}
+
+.activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.activity-title {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.activity-time {
+  color: var(--muted-color);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
+.activity-description {
+  color: var(--text-color);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.activity-description strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.activity-description em {
+  color: var(--muted-color);
+  font-style: italic;
+}
+
+.activity-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted-color);
+  font-size: 0.875rem;
+}
+
+.user-avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+/* Activity Type Colors */
+.activity-trade {
+  border-left: 4px solid #3b82f6;
+}
+
+.activity-success {
+  border-left: 4px solid #10b981;
+}
+
+.activity-danger {
+  border-left: 4px solid #ef4444;
+}
+
+.activity-info {
+  border-left: 4px solid #06b6d4;
+}
+
+.activity-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.activity-primary {
+  border-left: 4px solid #8b5cf6;
+}
+
+.activity-secondary {
+  border-left: 4px solid #6b7280;
+}
+
+.activity-default {
+  border-left: 4px solid var(--border-color);
+}
+
+/* No Activities State */
+.no-activities {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted-color);
+}
+
+.no-activities-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.no-activities h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.no-activities p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  color: var(--muted-color);
+  font-size: 0.875rem;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--secondary-background);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--hover-background);
+  border-color: var(--primary);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .feed-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .feed-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .activity-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .activity-time {
+    margin-left: 0;
+  }
+  
+  .activities-container {
+    max-height: 500px;
+  }
+}
+</style>
+
+<script>
+let autoRefreshInterval;
+let lastActivityId = {{ activities[0].id if activities else 0 }};
+
+// Auto-refresh functionality
+function startAutoRefresh() {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+  }
+  
+  autoRefreshInterval = setInterval(() => {
+    checkForNewActivities();
+  }, 30000); // 30 seconds
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval = null;
+  }
+}
+
+// Check for new activities
+async function checkForNewActivities() {
+  try {
+    const response = await fetch(`{{ url_for('activity.latest_activity', league_id=league.id) }}`);
+    const data = await response.json();
+    
+    if (data.activity && data.activity.id > lastActivityId) {
+      addNewActivity(data.activity);
+      lastActivityId = data.activity.id;
+    }
+  } catch (error) {
+    console.error('Error checking for new activities:', error);
+  }
+}
+
+// Add new activity to the top of the feed
+function addNewActivity(activity) {
+  const container = document.getElementById('activities-container');
+  const loadingIndicator = document.getElementById('loading-indicator');
+  
+  // Show loading indicator
+  loadingIndicator.style.display = 'flex';
+  
+  // Create new activity element
+  const activityElement = createActivityElement(activity);
+  
+  // Add to top of container
+  setTimeout(() => {
+    container.insertBefore(activityElement, container.firstChild);
+    loadingIndicator.style.display = 'none';
+    
+    // Update activity count
+    const countElement = document.getElementById('activity-count');
+    const currentCount = parseInt(countElement.textContent);
+    countElement.textContent = currentCount + 1;
+    
+    // Add highlight animation
+    activityElement.style.background = 'var(--primary)';
+    activityElement.style.color = 'white';
+    setTimeout(() => {
+      activityElement.style.background = '';
+      activityElement.style.color = '';
+    }, 3000);
+  }, 500);
+}
+
+// Create activity element from data
+function createActivityElement(activity) {
+  const div = document.createElement('div');
+  div.className = `activity-item ${activity.color_class}`;
+  div.setAttribute('data-activity-id', activity.id);
+  
+  div.innerHTML = `
+    <div class="activity-icon">
+      ${activity.icon}
+    </div>
+    <div class="activity-content">
+      <div class="activity-header">
+        <div class="activity-title">${activity.title}</div>
+        <div class="activity-time">${activity.time_ago}</div>
+      </div>
+      <div class="activity-description">
+        ${activity.description}
+      </div>
+      ${activity.user_id ? `
+        <div class="activity-user">
+          <span class="user-avatar">👤</span>
+          <span class="user-name">${activity.user}</span>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  return div;
+}
+
+// Manual refresh
+function refreshFeed() {
+  const loadingIndicator = document.getElementById('loading-indicator');
+  loadingIndicator.style.display = 'flex';
+  
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  const autoRefreshCheckbox = document.getElementById('auto-refresh');
+  
+  // Start auto-refresh if enabled
+  if (autoRefreshCheckbox.checked) {
+    startAutoRefresh();
+  }
+  
+  // Toggle auto-refresh
+  autoRefreshCheckbox.addEventListener('change', function() {
+    if (this.checked) {
+      startAutoRefresh();
+    } else {
+      stopAutoRefresh();
+    }
+  });
+});
+</script>
+{% endblock %}

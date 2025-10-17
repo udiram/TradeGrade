@@ -116,3 +116,18 @@ class BoardPost(TimestampMixin, db.Model):
     author = db.relationship("User", back_populates="posts")
 
 
+class LeagueActivity(TimestampMixin, db.Model):
+    """Track all league activities for the activity feed"""
+    id = db.Column(db.Integer, primary_key=True)
+    league_id = db.Column(db.Integer, db.ForeignKey("league.id"), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True, index=True)  # Can be null for system events
+    activity_type = db.Column(db.String(50), nullable=False, index=True)  # trade_proposal, trade_accepted, trade_rejected, roster_add, roster_remove, post_created, post_edited, post_deleted
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    activity_data = db.Column(db.Text, nullable=True)  # JSON string for additional data (player names, trade details, etc.)
+    
+    # Relationships
+    league = db.relationship("League", backref="activities")
+    user = db.relationship("User", backref="activities")
+
+

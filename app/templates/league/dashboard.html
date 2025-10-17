@@ -51,6 +51,10 @@
               <span class="icon">🤝</span>
               <span>Trade Proposals</span>
             </a>
+            <a href="{{ url_for('activity.league_activity', league_id=m.league_id) }}" class="action-link secondary">
+              <span class="icon">📊</span>
+              <span>Activity Feed</span>
+            </a>
             <a href="{{ url_for('trades.analyze', league_id=m.league_id) }}" class="action-link secondary">
               <span class="icon">📊</span>
               <span>Trade Analysis</span>

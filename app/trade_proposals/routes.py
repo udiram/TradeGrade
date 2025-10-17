@@ -5,6 +5,7 @@ import json
 from ..extensions import db
 from ..models import TradeProposal, RosterEntry, Player, Membership, User
 from ..services.analysis import analyze_trade
+from ..services.activity import log_trade_proposal, log_trade_response
 
 trade_proposals_bp = Blueprint("trade_proposals", __name__, url_prefix="/trade-proposals")
 
@@ -153,11 +154,14 @@ def create_proposal(league_id: int):
             traceback.print_exc()
             proposal.analysis_data = json.dumps({"error": f"Analysis failed: {str(e)}"})
         
-        db.session.add(proposal)
-        db.session.commit()
-        
-        flash("Trade proposal sent successfully", "success")
-        return redirect(url_for("trade_proposals.list_proposals", league_id=league_id))
+            db.session.add(proposal)
+            db.session.commit()
+            
+            # Log activity
+            log_trade_proposal(proposal)
+            
+            flash("Trade proposal sent successfully", "success")
+            return redirect(url_for("trade_proposals.list_proposals", league_id=league_id))
     
     return render_template("trade_proposals/create.html", 
                          league_id=league_id, 
@@ -255,6 +259,9 @@ def respond_to_proposal(league_id: int, proposal_id: int):
             proposal.status = "accepted"
             db.session.commit()
             
+            # Log activity
+            log_trade_response(proposal, "accepted")
+            
             if request.headers.get('Content-Type') == 'application/json':
                 return jsonify({"success": True, "message": "Trade accepted successfully"})
             flash("Trade accepted and executed successfully", "success")
@@ -268,6 +275,9 @@ def respond_to_proposal(league_id: int, proposal_id: int):
     elif action == "reject":
         proposal.status = "rejected"
         db.session.commit()
+        
+        # Log activity
+        log_trade_response(proposal, "rejected")
         
         if request.headers.get('Content-Type') == 'application/json':
             return jsonify({"success": True, "message": "Trade rejected"})
