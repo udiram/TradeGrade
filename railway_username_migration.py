@@ -56,51 +56,54 @@ def add_username_column():
             WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'user' AND COLUMN_NAME = 'username'
         """, (conn_params['database'],))
         
-        if cursor.fetchone():
+        username_exists = cursor.fetchone()
+        if username_exists:
             print("✅ Username column already exists")
-            return True
-        
-        print("🔄 Adding username column...")
-        
-        # Add username column as nullable first
-        cursor.execute("ALTER TABLE user ADD COLUMN username VARCHAR(50) NULL")
-        print("✅ Username column added")
-        
-        # Generate usernames for existing users
-        print("🔄 Generating usernames for existing users...")
-        cursor.execute("SELECT id, email FROM user WHERE username IS NULL")
-        users = cursor.fetchall()
-        
-        print(f"Found {len(users)} users without usernames")
-        
-        for user_id, email in users:
-            # Generate username from email
-            username_base = email.split('@')[0].lower()
-            # Remove any non-alphanumeric characters except underscore
-            username_base = ''.join(c for c in username_base if c.isalnum() or c == '_')
-            # Ensure it starts with a letter or underscore
-            if username_base and not username_base[0].isalpha() and username_base[0] != '_':
-                username_base = 'user_' + username_base
+        else:
+            print("🔄 Adding username column...")
             
-            username = username_base
+            # Add username column as nullable first
+            cursor.execute("ALTER TABLE user ADD COLUMN username VARCHAR(50) NULL")
+            print("✅ Username column added")
             
-            # Ensure username is unique
-            counter = 1
-            while True:
-                cursor.execute("SELECT id FROM user WHERE username = %s", (username,))
-                if not cursor.fetchone():
-                    break
-                username = f"{username_base}{counter}"
-                counter += 1
+            # Generate usernames for existing users
+            print("🔄 Generating usernames for existing users...")
+            cursor.execute("SELECT id, email FROM user WHERE username IS NULL")
+            users = cursor.fetchall()
             
-            # Update user with generated username
-            cursor.execute("UPDATE user SET username = %s WHERE id = %s", (username, user_id))
-            print(f"✅ Generated username '{username}' for user {user_id}")
+            print(f"Found {len(users)} users without usernames")
+            
+            for user_id, email in users:
+                # Generate username from email
+                username_base = email.split('@')[0].lower()
+                # Remove any non-alphanumeric characters except underscore
+                username_base = ''.join(c for c in username_base if c.isalnum() or c == '_')
+                # Ensure it starts with a letter or underscore
+                if username_base and not username_base[0].isalpha() and username_base[0] != '_':
+                    username_base = 'user_' + username_base
+                
+                username = username_base
+                
+                # Ensure username is unique
+                counter = 1
+                while True:
+                    cursor.execute("SELECT id FROM user WHERE username = %s", (username,))
+                    if not cursor.fetchone():
+                        break
+                    username = f"{username_base}{counter}"
+                    counter += 1
+                
+                # Update user with generated username
+                cursor.execute("UPDATE user SET username = %s WHERE id = %s", (username, user_id))
+                print(f"✅ Generated username '{username}' for user {user_id}")
+            
+            # Make username non-nullable and add unique index
+            print("🔄 Making username non-nullable and adding unique index...")
+            cursor.execute("ALTER TABLE user MODIFY COLUMN username VARCHAR(50) NOT NULL")
+            cursor.execute("CREATE UNIQUE INDEX ix_user_username ON user (username)")
         
-        # Make username non-nullable and add unique index
-        print("🔄 Making username non-nullable and adding unique index...")
-        cursor.execute("ALTER TABLE user MODIFY COLUMN username VARCHAR(50) NOT NULL")
-        cursor.execute("CREATE UNIQUE INDEX ix_user_username ON user (username)")
+        # ALWAYS check and add injury status columns (regardless of username column status)
+        print("🔍 Checking player table for injury status columns...")
         
         # Add injury status columns to player table
         print("🔄 Adding injury status columns to player table...")
@@ -112,7 +115,8 @@ def add_username_column():
             WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'player' AND COLUMN_NAME = 'injury_status'
         """, (conn_params['database'],))
         
-        if not cursor.fetchone():
+        injury_status_exists = cursor.fetchone()
+        if not injury_status_exists:
             cursor.execute("ALTER TABLE player ADD COLUMN injury_status VARCHAR(20) NULL")
             print("✅ injury_status column added")
         else:
@@ -125,7 +129,8 @@ def add_username_column():
             WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'player' AND COLUMN_NAME = 'injury_updated_at'
         """, (conn_params['database'],))
         
-        if not cursor.fetchone():
+        injury_updated_at_exists = cursor.fetchone()
+        if not injury_updated_at_exists:
             cursor.execute("ALTER TABLE player ADD COLUMN injury_updated_at DATETIME NULL")
             print("✅ injury_updated_at column added")
         else:
