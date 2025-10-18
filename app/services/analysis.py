@@ -62,6 +62,12 @@ def compute_player_metrics(players: List[Dict]) -> List[PlayerMetrics]:
         name = p.get("name", "Unknown")
         position = p.get("position")
         team = p.get("team")
+        
+        # Get real injury risk from status
+        injury_status = p.get("injury_status")
+        from app.services.players import get_injury_severity_score
+        injury_risk = get_injury_severity_score(injury_status)
+        
         metrics.append(
             PlayerMetrics(
                 player_id=p["id"],
@@ -69,7 +75,7 @@ def compute_player_metrics(players: List[Dict]) -> List[PlayerMetrics]:
                 position=position,
                 team=team,
                 projected_points=_mock_projection(name, position),
-                injury_risk=_mock_injury_risk(name),
+                injury_risk=injury_risk,  # Use real injury data
                 opponent_difficulty=_mock_opponent_difficulty(team),
                 recent_form=_mock_recent_form(name),
             )
@@ -498,15 +504,30 @@ def llm_summarize(player: Dict, base: Dict, dist: Dict) -> Dict:
         alt_count = base.get("alternatives_count", 0)
         bench_info = f"Bench comparison: {alt_count} alternatives averaging {bench_baseline} points. Margin: {margin:+0.1f} points vs bench."
     
+    # Add injury context
+    injury_status = player.get("injury_status")
+    injury_context = ""
+    if injury_status:
+        if injury_status in ["OUT", "IR"]:
+            injury_context = f"CRITICAL: {name} is currently {injury_status} and should NOT be started."
+        elif injury_status == "Doubtful":
+            injury_context = f"WARNING: {name} is Doubtful (unlikely to play)."
+        elif injury_status == "Questionable":
+            injury_context = f"CAUTION: {name} is Questionable (50/50 to play)."
+        elif injury_status == "Probable":
+            injury_context = f"NOTE: {name} is Probable (likely to play)."
+    
     prompt = (
         f"You are a fantasy football assistant. Recommend SIT or START for {name} ({pos}, {team}).\n"
+        f"Injury Status: {injury_status or 'Healthy'}\n"
+        f"{injury_context}\n"
         f"Key numbers: score={base.get('score')}, proj={base.get('player',{}).get('proj')}, injury={base.get('player',{}).get('injury')},"
         f" opp_diff={base.get('player',{}).get('opp_diff')}, form={base.get('player',{}).get('form')}.\n"
         f"{bench_info}\n"
         f"Distribution analysis: mean={dist['mean']}, p50={dist['percentiles']['p50']}, win_prob={dist['win_prob']}.\n"
         f"Opponent metrics: {ctx.get('opponent')} -> {ctx.get('opponent_metrics')}. Recent stats: {ctx.get('recent_stats')}.\n"
         f"Headlines: {ctx.get('headlines')}.\n"
-        "Return concise JSON with fields: final ('start'|'sit'), summary (2-3 sentences), bullets (3-5 short bullets). Focus on bench comparison and practical decision."
+        "Return concise JSON with fields: final ('start'|'sit'), summary (2-3 sentences), bullets (3-5 short bullets). Focus on player health, bench comparison and practical decision."
     )
     models = [
         "llama-3.1-70b-versatile",

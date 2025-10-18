@@ -67,6 +67,8 @@ class Player(TimestampMixin, db.Model):
     name = db.Column(db.String(120), nullable=False, index=True)
     position = db.Column(db.String(10), nullable=True)
     team = db.Column(db.String(10), nullable=True)
+    injury_status = db.Column(db.String(20), nullable=True)  # OUT, Doubtful, Questionable, Probable, IR
+    injury_updated_at = db.Column(db.DateTime, nullable=True)
 
 
 class RosterEntry(TimestampMixin, db.Model):

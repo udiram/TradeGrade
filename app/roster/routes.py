@@ -168,6 +168,7 @@ def sit_start(league_id: int, player_id: int):
         "name": player.name,
         "position": player.position,
         "team": player.team,
+        "injury_status": player.injury_status,
     }, roster_context=roster_context)
     
     return render_template("roster/sit_start.html", league_id=league_id, player=player, analysis=analysis)
@@ -235,6 +236,17 @@ def build_roster_context(target_player: Player, all_entries: list) -> dict:
     # Exclude the target player from the alternatives pool, if present
     alternatives = [p for p in alternatives if p.id != target_player.id]
     
+    # Filter bench alternatives - exclude OUT/IR players
+    available_alternatives = []
+    for alt in alternatives:
+        injury_status = alt.injury_status
+        # Exclude players who are OUT, IR, Suspended, etc.
+        if injury_status in ["OUT", "Out", "IR", "PUP", "Suspended"]:
+            continue
+        available_alternatives.append(alt)
+    
+    alternatives = available_alternatives
+    
     # Calculate position scarcity
     total_at_position = len(starters_by_pos.get(target_position, [])) + len(bench_by_pos.get(target_position, []))
     position_scarcity = total_at_position <= 1  # Must start if only player at position
@@ -244,7 +256,7 @@ def build_roster_context(target_player: Player, all_entries: list) -> dict:
     if alternatives:
         from ..services.analysis import compute_player_metrics
         alt_input = [{
-            "id": p.id, "name": p.name, "position": p.position, "team": p.team
+            "id": p.id, "name": p.name, "position": p.position, "team": p.team, "injury_status": p.injury_status
         } for p in alternatives]
         alt_metrics = compute_player_metrics(alt_input)
         bench_baseline = sum(m.projected_points for m in alt_metrics) / len(alt_metrics)
@@ -255,6 +267,7 @@ def build_roster_context(target_player: Player, all_entries: list) -> dict:
                 "name": p.name,
                 "position": normalize_position(p.position),
                 "team": p.team,
+                "injury_status": p.injury_status,
                 "proj": round(m.projected_points, 2)
             })
     else:

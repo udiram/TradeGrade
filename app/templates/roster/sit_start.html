@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}Sit or Start - TradeGrade{% endblock %}
 {% block content %}
-<h3>Sit or Start: {{ player.name }}</h3>
+<h3>Sit or Start: {{ player.name }}
+  {% if player.injury_status %}
+    <span class="badge badge-{{ 'error' if player.injury_status in ['OUT', 'IR'] else 'warning' }}">
+      {{ player.injury_status }}
+    </span>
+  {% endif %}
+</h3>
 
 {% if analysis %}
   <article class="card">
@@ -53,10 +59,24 @@
     {% if analysis.alternatives and analysis.alternatives|length %}
       <h5>Bench alternatives</h5>
       <table>
-        <thead><tr><th>Player</th><th>Pos</th><th>Team</th><th>Proj</th></tr></thead>
+        <thead><tr><th>Player</th><th>Pos</th><th>Team</th><th>Status</th><th>Proj</th></tr></thead>
         <tbody>
         {% for a in analysis.alternatives %}
-          <tr><td>{{ a.name }}</td><td>{{ a.position }}</td><td>{{ a.team }}</td><td>{{ a.proj }}</td></tr>
+          <tr class="{{ 'unavailable' if a.injury_status in ['OUT', 'IR'] else '' }}">
+            <td>{{ a.name }}</td>
+            <td>{{ a.position }}</td>
+            <td>{{ a.team }}</td>
+            <td>
+              {% if a.injury_status %}
+                <span class="injury-badge {{ a.injury_status|lower }}">
+                  {{ a.injury_status }}
+                </span>
+              {% else %}
+                <span class="healthy">✓</span>
+              {% endif %}
+            </td>
+            <td>{{ a.proj }}</td>
+          </tr>
         {% endfor %}
         </tbody>
       </table>

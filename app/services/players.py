@@ -3,6 +3,7 @@ from __future__ import annotations
 import threading
 from typing import Dict, List
 import requests
+from datetime import datetime
 
 NFL_TEAMS = {
     "ARI","ATL","BAL","BUF","CAR","CHI","CIN","CLE","DAL","DEN",
@@ -81,11 +82,15 @@ def _fetch_all_players_from_sleeper() -> List[Dict]:
         name = p.get("full_name") or p.get("first_name") or ""
         position = p.get("position")
         team = p.get("team")
+        # Capture injury status
+        injury_status = p.get("injury_status") or None  # OUT, Doubtful, Questionable, etc.
+        
         players.append({
             "external_id": str(pid),
             "name": name,
             "position": position,
             "team": team,
+            "injury_status": injury_status,  # ADD THIS
         })
     return players
 
@@ -132,6 +137,47 @@ def search_players_cache(query: str, limit: int = 20) -> List[Dict]:
             results.append(p)
     
     return results[:limit]
+
+
+def sync_player_injury_status(player) -> None:
+    """Fetch and update injury status for a specific player from Sleeper API."""
+    if not player.external_id:
+        return
+    
+    try:
+        url = "https://api.sleeper.app/v1/players/nfl"
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        
+        player_data = data.get(player.external_id)
+        if player_data:
+            injury_status = player_data.get("injury_status")
+            player.injury_status = injury_status
+            player.injury_updated_at = datetime.utcnow()
+            from app.extensions import db
+            db.session.commit()
+    except Exception as e:
+        print(f"Failed to sync injury status for {player.name}: {e}")
+
+
+def get_injury_severity_score(injury_status: str | None) -> float:
+    """Convert injury status to a severity score (0.0 = healthy, 1.0 = out)."""
+    if not injury_status:
+        return 0.0
+    
+    status_map = {
+        "Out": 1.0,
+        "OUT": 1.0,
+        "IR": 1.0,
+        "PUP": 1.0,
+        "Suspended": 1.0,
+        "Doubtful": 0.85,
+        "Questionable": 0.4,
+        "Probable": 0.15,
+    }
+    
+    return status_map.get(injury_status, 0.0)
 
 
 # DB sync helpers
