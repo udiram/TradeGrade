@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% block title %}Releases - TradeGrade{% endblock %}
+{% block content %}
+<div class="section-title flex justify-between items-center mb-6">
+  <h3>Release Notes</h3>
+  <span class="badge">Updates</span>
+</div>
+
+<div class="releases-intro mb-8">
+  <p class="text-lg text-muted">
+    Track all the latest improvements, features, and fixes to TradeGrade. 
+    We're constantly working to make your fantasy football experience better.
+  </p>
+</div>
+
+<div class="releases-container">
+  {% for release in releases %}
+    <div class="release-card">
+      <div class="release-header">
+        <div class="release-version">
+          <h4>{{ release.version }}</h4>
+          <span class="release-date">{{ release.date }}</span>
+        </div>
+        <div class="release-type {{ release.type }}">
+          {{ release.type.title() }}
+        </div>
+      </div>
+      
+      <div class="release-content">
+        <div class="release-summary">
+          <p>{{ release.summary }}</p>
+        </div>
+        
+        {% if release.features %}
+        <div class="release-section">
+          <h5>✨ New Features</h5>
+          <ul class="feature-list">
+            {% for feature in release.features %}
+              <li>{{ feature }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        
+        {% if release.improvements %}
+        <div class="release-section">
+          <h5>🚀 Improvements</h5>
+          <ul class="improvement-list">
+            {% for improvement in release.improvements %}
+              <li>{{ improvement }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        
+        {% if release.fixes %}
+        <div class="release-section">
+          <h5>🐛 Bug Fixes</h5>
+          <ul class="fix-list">
+            {% for fix in release.fixes %}
+              <li>{{ fix }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        
+        {% if release.technical %}
+        <div class="release-section">
+          <h5>🔧 Technical Updates</h5>
+          <ul class="technical-list">
+            {% for tech in release.technical %}
+              <li>{{ tech }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<style>
+.releases-intro {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.releases-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.release-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.release-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+}
+
+.release-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.release-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.release-version h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.release-date {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.release-type {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.release-type.major {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.release-type.minor {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.release-type.patch {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.release-type.hotfix {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.release-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.release-summary {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.release-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.release-section h5 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feature-list,
+.improvement-list,
+.fix-list,
+.technical-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.feature-list li,
+.improvement-list li,
+.fix-list li,
+.technical-list li {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  position: relative;
+}
+
+.feature-list li::marker {
+  color: #10b981;
+}
+
+.improvement-list li::marker {
+  color: #3b82f6;
+}
+
+.fix-list li::marker {
+  color: #ef4444;
+}
+
+.technical-list li::marker {
+  color: #8b5cf6;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .releases-container {
+    gap: 1.5rem;
+  }
+  
+  .release-card {
+    padding: 1.5rem;
+  }
+  
+  .release-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .release-version h4 {
+    font-size: 1.25rem;
+  }
+  
+  .release-summary {
+    font-size: 1rem;
+  }
+  
+  .feature-list,
+  .improvement-list,
+  .fix-list,
+  .technical-list {
+    padding-left: 1.25rem;
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .release-card {
+  background: var(--bg-secondary);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .release-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+</style>
+{% endblock %}

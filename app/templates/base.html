@@ -1690,12 +1690,13 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" title="Toggle menu">
           <span id="menu-icon">☰</span>
         </button>
-        <ul class="nav-menu">
-          <li><a href="{{ url_for('examples') }}">Examples</a></li>
-          <li><a href="{{ url_for('league.dashboard') }}">Dashboard</a></li>
-          <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-          <li><a href="{{ url_for('auth.register') }}">Register</a></li>
-          <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                <ul class="nav-menu">
+                  <li><a href="{{ url_for('examples') }}">Examples</a></li>
+                  <li><a href="{{ url_for('releases') }}">Releases</a></li>
+                  <li><a href="{{ url_for('league.dashboard') }}">Dashboard</a></li>
+                  <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                  <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                  <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
           <li>
             <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
               <span id="theme-icon">🌙</span>

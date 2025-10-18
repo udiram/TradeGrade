@@ -1,0 +1,82 @@
+{
+  "last_updated": "2025-10-17T22:55:01.006147",
+  "releases": [
+    {
+      "version": "2025.10.17.1",
+      "date": "2025-10-17",
+      "type": "minor",
+      "summary": "PWA assets, robots.txt, and UI improvements and 9 other changes",
+      "features": [
+        "PWA assets, robots.txt, and UI improvements",
+        "Railway username migration to deployment",
+        "Injury status support for players",
+        "Injury status tracking and display for players",
+        "Injury_status column check and post-migration player sync",
+        "Username support and new static pages"
+      ],
+      "improvements": [
+        "Dashboard empty state and mobile styles",
+        "Mobile responsiveness and UI for key templates",
+        "Username and injury column migration logic",
+        "Examples.html"
+      ],
+      "fixes": [],
+      "technical": []
+    },
+    {
+      "version": "2025.10.16.1",
+      "date": "2025-10-16",
+      "type": "minor",
+      "summary": "Railway deployment configuration and migration script and 41 other changes",
+      "features": [
+        "Railway deployment configuration and migration script",
+        "Board post editing, deletion, and member tagging",
+        "Comprehensive deployment scripts for Railway MySQL setup",
+        "Comprehensive trade analysis page with detailed metrics, charts, and visualizations - accessible via Analyze button on trade proposals",
+        "Custom Jinja2 from_json filter to parse JSON strings in templates",
+        "Trade proposals feature and Rue Arlotta easter egg",
+        "For MySQL on Railway: add PyMySQL, update config, create MySQL init script",
+        "Comprehensive examples page showcasing all TradeGrade features with interactive demos and beautiful visuals",
+        "Comprehensive league activity feed system with real-time updates, activity logging, and beautiful UI",
+        "Massively enhance trade analysis - add comprehensive metrics, position analysis, risk assessment, upside potential, confidence scoring, and detailed visualizations",
+        "Google analytics",
+        "Ed analytics and sqlalchemy",
+        "Ed readmes"
+      ],
+      "improvements": [
+        "Dramatically improve risk analysis display - replace raw dictionary output with beautiful, organized sections showing risk trends, deltas, and high-risk players",
+        "Initial commit",
+        "Rm seed command",
+        ".gitignore",
+        "__init__.py",
+        "Index.html",
+        "Requirements.txt",
+        "Requirements.txt",
+        "Requirements.txt",
+        "Requirements.txt",
+        "Requirements.txt",
+        "Init",
+        "Looks better",
+        "No more db stuff on git",
+        "Remove demo",
+        "Second version",
+        "D team statistics"
+      ],
+      "fixes": [
+        "Debugging for trade analysis - show analysis section even with errors, add debug prints",
+        "Debugging to identify why risk analysis is showing as raw dictionary string instead of parsed data",
+        "Jinja2 UndefinedError - add safety checks for dictionary attributes and use proper filter syntax",
+        "Jinja2 syntax error in trade analysis template - replace invalid :+d format with proper conditional logic",
+        "Railway deployment: improve config, add health check, make startup robust",
+        "Existing trade proposal data with nested dictionary issues - run migration script and improve template fallbacks",
+        "Nested dictionary issue in risk analysis - properly extract risk_assessment string value and flatten the data structure",
+        "Railway.toml TOML syntax error - move preDeployCommand to correct location",
+        "Trade analysis - add error handling for AI summary, fix template compatibility with numeric_score field",
+        "Trade analysis KeyError - add missing 'id' field to player dictionaries",
+        "Trade proposal analysis and display issues - add player data to list, fix analysis generation, add analysis summary to list view",
+        "Bench/start mechanics"
+      ],
+      "technical": []
+    }
+  ]
+}

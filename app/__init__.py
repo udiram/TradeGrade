@@ -99,6 +99,12 @@ def register_routes(app: Flask) -> None:
     def sitemap():
         return render_template("sitemap.html")
     
+    @app.route("/releases")
+    def releases():
+        from .services.releases import get_latest_releases
+        releases_data = get_latest_releases(20)
+        return render_template("releases.html", releases=releases_data)
+    
     # Add robots.txt route
     @app.route('/robots.txt')
     def robots_txt():
