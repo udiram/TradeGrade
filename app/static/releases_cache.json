@@ -1,11 +1,11 @@
 {
-  "last_updated": "2025-10-17T22:57:26.002951",
+  "last_updated": "2025-10-17T22:58:20.921437",
   "releases": [
     {
       "version": "2025.10.17.1",
       "date": "2025-10-17",
       "type": "minor",
-      "summary": "PWA assets, robots.txt, and UI improvements and 11 other changes",
+      "summary": "PWA assets, robots.txt, and UI improvements and 12 other changes",
       "features": [
         "PWA assets, robots.txt, and UI improvements",
         "Railway username migration to deployment",
@@ -20,7 +20,8 @@
         "Dashboard empty state and mobile styles",
         "Mobile responsiveness and UI for key templates",
         "Username and injury column migration logic",
-        "Examples.html"
+        "Examples.html",
+        "Release cache and Twitter link"
       ],
       "fixes": [],
       "technical": []
