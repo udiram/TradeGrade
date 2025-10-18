@@ -186,13 +186,26 @@ def sync_active_players_into_db(db, Player) -> int:
     warm_players_cache()
     cache = _players_cache or []
     created = 0
+    updated = 0
     for p in cache:
         existing = Player.query.filter_by(name=p["name"], team=p["team"], position=p["position"]).first()
         if existing:
+            # Update injury status for existing players
+            if existing.injury_status != p.get("injury_status"):
+                existing.injury_status = p.get("injury_status")
+                existing.injury_updated_at = datetime.utcnow()
+                updated += 1
             continue
-        db.session.add(Player(name=p["name"], team=p["team"], position=p["position"], external_id=p.get("external_id")))
+        db.session.add(Player(
+            name=p["name"], 
+            team=p["team"], 
+            position=p["position"], 
+            external_id=p.get("external_id"),
+            injury_status=p.get("injury_status"),
+            injury_updated_at=datetime.utcnow()
+        ))
         created += 1
-    if created:
+    if created or updated:
         db.session.commit()
     return created
 

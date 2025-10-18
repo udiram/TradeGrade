@@ -45,7 +45,16 @@
           <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ e.player.external_id }}.jpg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827'" alt="{{ e.player.name }}">
         {% endif %}
         <div class="player-info">
-          <div class="player-name">{{ e.player.name }}</div>
+          <div class="player-name">
+            {{ e.player.name }}
+            {% if e.player.injury_status %}
+              <span class="injury-badge {{ e.player.injury_status|lower }}">
+                {{ e.player.injury_status }}
+              </span>
+            {% else %}
+              <span class="healthy-indicator">✓</span>
+            {% endif %}
+          </div>
           <div class="player-meta">{{ e.player.position }} • {{ e.player.team }}</div>
         </div>
         <div class="player-actions">
@@ -72,7 +81,16 @@
           <img src="https://sleepercdn.com/content/nfl/players/thumb/{{ e.player.external_id }}.jpg" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ e.player.name | urlencode }}&background=f3f4f6&color=111827'" alt="{{ e.player.name }}">
         {% endif %}
         <div class="player-info">
-          <div class="player-name">{{ e.player.name }}</div>
+          <div class="player-name">
+            {{ e.player.name }}
+            {% if e.player.injury_status %}
+              <span class="injury-badge {{ e.player.injury_status|lower }}">
+                {{ e.player.injury_status }}
+              </span>
+            {% else %}
+              <span class="healthy-indicator">✓</span>
+            {% endif %}
+          </div>
           <div class="player-meta">{{ e.player.position }} • {{ e.player.team }}</div>
         </div>
         <div class="player-actions">
@@ -330,6 +348,10 @@
   color: var(--text-primary);
   margin-bottom: 0.25rem;
   word-wrap: break-word;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .player-meta {
@@ -475,7 +497,65 @@
     padding: 1rem;
     font-size: 0.875rem;
   }
-}
+  }
+
+  /* Injury Status Indicators */
+  .injury-badge {
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .injury-badge.out,
+  .injury-badge.ir {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .injury-badge.doubtful {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  .injury-badge.questionable {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  .injury-badge.probable {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+
+  .healthy-indicator {
+    color: #10b981;
+    font-weight: bold;
+    font-size: 0.8rem;
+  }
+
+  [data-theme="dark"] .injury-badge.out,
+  [data-theme="dark"] .injury-badge.ir {
+    background: #7f1d1d;
+    color: #fca5a5;
+  }
+
+  [data-theme="dark"] .injury-badge.doubtful {
+    background: #78350f;
+    color: #fbbf24;
+  }
+
+  [data-theme="dark"] .injury-badge.questionable {
+    background: #78350f;
+    color: #fbbf24;
+  }
+
+  [data-theme="dark"] .injury-badge.probable {
+    background: #1e3a8a;
+    color: #93c5fd;
+  }
 </style>
 {% endblock %}
 

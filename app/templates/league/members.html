@@ -33,7 +33,16 @@
                            alt="{{ entry.player.name }}" class="player-avatar">
                     {% endif %}
                     <div class="player-info">
-                      <strong>{{ entry.player.name }}</strong>
+                      <strong>
+                        {{ entry.player.name }}
+                        {% if entry.player.injury_status %}
+                          <span class="injury-badge {{ entry.player.injury_status|lower }}">
+                            {{ entry.player.injury_status }}
+                          </span>
+                        {% else %}
+                          <span class="healthy-indicator">✓</span>
+                        {% endif %}
+                      </strong>
                       <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>
                     </div>
                   </div>
@@ -58,7 +67,16 @@
                            alt="{{ entry.player.name }}" class="player-avatar">
                     {% endif %}
                     <div class="player-info">
-                      <strong>{{ entry.player.name }}</strong>
+                      <strong>
+                        {{ entry.player.name }}
+                        {% if entry.player.injury_status %}
+                          <span class="injury-badge {{ entry.player.injury_status|lower }}">
+                            {{ entry.player.injury_status }}
+                          </span>
+                        {% else %}
+                          <span class="healthy-indicator">✓</span>
+                        {% endif %}
+                      </strong>
                       <span class="muted">{{ entry.player.position }} • {{ entry.player.team }}</span>
                     </div>
                   </div>
@@ -102,6 +120,71 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.player-info strong {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Injury Status Indicators */
+.injury-badge {
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.injury-badge.out,
+.injury-badge.ir {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.injury-badge.doubtful {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.injury-badge.questionable {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.injury-badge.probable {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.healthy-indicator {
+  color: #10b981;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+[data-theme="dark"] .injury-badge.out,
+[data-theme="dark"] .injury-badge.ir {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .injury-badge.doubtful {
+  background: #78350f;
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .injury-badge.questionable {
+  background: #78350f;
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .injury-badge.probable {
+  background: #1e3a8a;
+  color: #93c5fd;
   padding: 0.5rem;
   background: var(--card-background);
   border-radius: 0.5rem;

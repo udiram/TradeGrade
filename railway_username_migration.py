@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Railway-specific migration script for adding username field
+Railway-specific migration script for adding username field and injury status columns
 This handles the MySQL database on Railway
 """
 
@@ -32,7 +32,7 @@ def parse_database_url(url):
     }
 
 def add_username_column():
-    """Add username column to existing users table"""
+    """Add username column to existing users table and injury status columns to player table"""
     db_url = get_database_url()
     if not db_url:
         print("❌ No database URL found in environment variables")
@@ -102,6 +102,35 @@ def add_username_column():
         cursor.execute("ALTER TABLE user MODIFY COLUMN username VARCHAR(50) NOT NULL")
         cursor.execute("CREATE UNIQUE INDEX ix_user_username ON user (username)")
         
+        # Add injury status columns to player table
+        print("🔄 Adding injury status columns to player table...")
+        
+        # Check if injury_status column already exists
+        cursor.execute("""
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'player' AND COLUMN_NAME = 'injury_status'
+        """, (conn_params['database'],))
+        
+        if not cursor.fetchone():
+            cursor.execute("ALTER TABLE player ADD COLUMN injury_status VARCHAR(20) NULL")
+            print("✅ injury_status column added")
+        else:
+            print("✅ injury_status column already exists")
+        
+        # Check if injury_updated_at column already exists
+        cursor.execute("""
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'player' AND COLUMN_NAME = 'injury_updated_at'
+        """, (conn_params['database'],))
+        
+        if not cursor.fetchone():
+            cursor.execute("ALTER TABLE player ADD COLUMN injury_updated_at DATETIME NULL")
+            print("✅ injury_updated_at column added")
+        else:
+            print("✅ injury_updated_at column already exists")
+        
         # Commit changes
         connection.commit()
         print("✅ Migration completed successfully!")
@@ -117,10 +146,10 @@ def add_username_column():
             connection.close()
 
 if __name__ == "__main__":
-    print("🚀 Starting Railway username migration...")
+    print("🚀 Starting Railway migration (username + injury status)...")
     success = add_username_column()
     if success:
-        print("🎉 Railway username migration completed successfully!")
+        print("🎉 Railway migration completed successfully!")
     else:
-        print("💥 Railway username migration failed!")
+        print("💥 Railway migration failed!")
     sys.exit(0 if success else 1)
