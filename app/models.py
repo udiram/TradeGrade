@@ -17,6 +17,7 @@ class TimestampMixin:
 class User(UserMixin, TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    username = db.Column(db.String(50), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     display_name = db.Column(db.String(120), nullable=True)
 
@@ -31,6 +32,13 @@ class User(UserMixin, TimestampMixin, db.Model):
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
+
+    @staticmethod
+    def find_by_email_or_username(identifier: str) -> Optional['User']:
+        """Find user by email or username"""
+        return User.query.filter(
+            (User.email == identifier) | (User.username == identifier)
+        ).first()
 
 
 class League(TimestampMixin, db.Model):

@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+{% block title %}About - TradeGrade{% endblock %}
+{% block content %}
+<div class="about-container">
+  <div class="about-hero">
+    <div class="about-hero-content">
+      <h1>About TradeGrade</h1>
+      <p class="hero-subtitle">Revolutionizing fantasy football with AI-powered analytics</p>
+    </div>
+  </div>
+
+  <div class="about-content">
+    <div class="about-section">
+      <div class="about-text">
+        <h2>Our Mission</h2>
+        <p>TradeGrade was born from a passion for fantasy football and a vision to level the playing field. We believe that every fantasy manager deserves access to professional-grade analytics and insights that were previously only available to the pros.</p>
+        <p>Our mission is to democratize fantasy football analytics, making advanced statistical analysis, expert consensus, and AI-powered recommendations accessible to players of all skill levels.</p>
+      </div>
+      <div class="about-image">
+        <div class="image-placeholder">
+          <span class="icon">🏈</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-section reverse">
+      <div class="about-text">
+        <h2>What Makes Us Different</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-icon">🤖</div>
+            <h3>AI-Powered Analysis</h3>
+            <p>Our advanced AI combines multiple data sources to provide comprehensive trade and sit/start recommendations.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <h3>Real-Time Data</h3>
+            <p>Get the latest player statistics, injury reports, and expert opinions to make informed decisions.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">👥</div>
+            <h3>Community Focused</h3>
+            <p>Built for leagues and communities, with features that enhance the social aspect of fantasy football.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📱</div>
+            <h3>Mobile Optimized</h3>
+            <p>Access all features seamlessly across desktop, tablet, and mobile devices.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-text">
+        <h2>Our Technology</h2>
+        <p>TradeGrade leverages cutting-edge technology to deliver the most accurate and comprehensive fantasy football analysis available:</p>
+        <ul class="tech-list">
+          <li><strong>Machine Learning:</strong> Advanced algorithms that learn from historical data and expert patterns</li>
+          <li><strong>Natural Language Processing:</strong> AI that processes news, social media, and expert commentary</li>
+          <li><strong>Real-Time Data Integration:</strong> Live feeds from multiple sports data providers</li>
+          <li><strong>Statistical Modeling:</strong> Sophisticated models that account for matchups, weather, and situational factors</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-section reverse">
+      <div class="about-text">
+        <h2>Meet the Creator</h2>
+        <div class="creator-card">
+          <div class="creator-info">
+            <h3>Udbhav Ram</h3>
+            <p class="creator-title">Founder & Developer</p>
+            <p>Udbhav is a passionate fantasy football enthusiast and software developer who combined his love for the game with his technical expertise to create TradeGrade. With years of experience in both fantasy football and software development, he set out to solve the common problems that plague fantasy managers.</p>
+            <p>When he's not coding or analyzing player stats, you can find him managing multiple fantasy leagues and constantly tweaking his lineup.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-text">
+        <h2>Our Commitment</h2>
+        <p>We're committed to continuously improving TradeGrade based on user feedback and the evolving landscape of fantasy football. Our development roadmap includes:</p>
+        <div class="commitment-grid">
+          <div class="commitment-item">
+            <h4>🔄 Continuous Updates</h4>
+            <p>Regular feature updates and improvements based on user feedback</p>
+          </div>
+          <div class="commitment-item">
+            <h4>📈 Data Accuracy</h4>
+            <p>Maintaining the highest standards of data accuracy and reliability</p>
+          </div>
+          <div class="commitment-item">
+            <h4>🛡️ Privacy First</h4>
+            <p>Protecting user data with industry-leading security measures</p>
+          </div>
+          <div class="commitment-item">
+            <h4>💬 Community Support</h4>
+            <p>Responsive customer support and active community engagement</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-cta">
+    <h2>Ready to Dominate Your League?</h2>
+    <p>Join thousands of fantasy managers who are already using TradeGrade to gain a competitive edge.</p>
+    <div class="cta-buttons">
+      <a href="{{ url_for('examples') }}" class="btn btn-primary">See Examples</a>
+      <a href="{{ url_for('league.dashboard') }}" class="btn btn-secondary">Get Started</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.about-hero {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  padding: 4rem 2rem;
+  border-radius: var(--radius-xl);
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+}
+
+.about-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  margin-bottom: 4rem;
+}
+
+.about-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.about-section.reverse {
+  direction: rtl;
+}
+
+.about-section.reverse > * {
+  direction: ltr;
+}
+
+.about-text h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.about-text p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.about-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-placeholder {
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(135deg, var(--primary-light), var(--bg-secondary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid var(--primary);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+}
+
+.image-placeholder .icon {
+  font-size: 4rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feature-item {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-item h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.feature-item p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.tech-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+.tech-list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.tech-list li:last-child {
+  border-bottom: none;
+}
+
+.creator-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.creator-info h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.creator-title {
+  font-size: 1.1rem;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.commitment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.commitment-item {
+  padding: 1.5rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s ease;
+}
+
+.commitment-item:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.commitment-item h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.commitment-item p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.about-cta {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+}
+
+.about-cta h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.about-cta p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-hover), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-light);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 2rem 1rem;
+  }
+  
+  .about-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .about-section {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .features-grid,
+  .commitment-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %}

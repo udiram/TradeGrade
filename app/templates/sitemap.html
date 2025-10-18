@@ -1,0 +1,398 @@
+{% extends 'base.html' %}
+{% block title %}Sitemap - TradeGrade{% endblock %}
+{% block content %}
+<div class="sitemap-container">
+  <div class="sitemap-header">
+    <h1>Sitemap</h1>
+    <p>Navigate through all pages and features of TradeGrade</p>
+  </div>
+
+  <div class="sitemap-content">
+    <div class="sitemap-section">
+      <h2>Main Pages</h2>
+      <div class="sitemap-links">
+        <a href="{{ url_for('index') }}" class="sitemap-link">
+          <span class="link-icon">🏠</span>
+          <div class="link-content">
+            <h3>Home</h3>
+            <p>Welcome to TradeGrade - AI-powered fantasy football analytics</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('examples') }}" class="sitemap-link">
+          <span class="link-icon">📊</span>
+          <div class="link-content">
+            <h3>Examples</h3>
+            <p>See TradeGrade in action with live examples</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('about') }}" class="sitemap-link">
+          <span class="link-icon">ℹ️</span>
+          <div class="link-content">
+            <h3>About</h3>
+            <p>Learn about TradeGrade and our mission</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('contact') }}" class="sitemap-link">
+          <span class="link-icon">📞</span>
+          <div class="link-content">
+            <h3>Contact</h3>
+            <p>Get in touch with our support team</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="sitemap-section">
+      <h2>User Features</h2>
+      <div class="sitemap-links">
+        <a href="{{ url_for('auth.register') }}" class="sitemap-link">
+          <span class="link-icon">👤</span>
+          <div class="link-content">
+            <h3>Register</h3>
+            <p>Create your TradeGrade account</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('auth.login') }}" class="sitemap-link">
+          <span class="link-icon">🔑</span>
+          <div class="link-content">
+            <h3>Login</h3>
+            <p>Sign in to your account</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('league.dashboard') }}" class="sitemap-link">
+          <span class="link-icon">📋</span>
+          <div class="link-content">
+            <h3>Dashboard</h3>
+            <p>Manage your leagues and view your teams</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('league.create') }}" class="sitemap-link">
+          <span class="link-icon">➕</span>
+          <div class="link-content">
+            <h3>Create League</h3>
+            <p>Start a new fantasy football league</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('league.join') }}" class="sitemap-link">
+          <span class="link-icon">🔗</span>
+          <div class="link-content">
+            <h3>Join League</h3>
+            <p>Join an existing league with an invite code</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="sitemap-section">
+      <h2>Fantasy Features</h2>
+      <div class="sitemap-links">
+        <a href="#" class="sitemap-link disabled">
+          <span class="link-icon">👥</span>
+          <div class="link-content">
+            <h3>Roster Management</h3>
+            <p>Build and manage your fantasy team roster</p>
+            <small>Available after joining a league</small>
+          </div>
+        </a>
+        
+        <a href="#" class="sitemap-link disabled">
+          <span class="link-icon">📈</span>
+          <div class="link-content">
+            <h3>Trade Analysis</h3>
+            <p>AI-powered analysis for fantasy football trades</p>
+            <small>Available after joining a league</small>
+          </div>
+        </a>
+        
+        <a href="#" class="sitemap-link disabled">
+          <span class="link-icon">🎯</span>
+          <div class="link-content">
+            <h3>Sit/Start Analysis</h3>
+            <p>Get recommendations on who to start or sit</p>
+            <small>Available after joining a league</small>
+          </div>
+        </a>
+        
+        <a href="#" class="sitemap-link disabled">
+          <span class="link-icon">🤝</span>
+          <div class="link-content">
+            <h3>Trade Proposals</h3>
+            <p>Create and manage trade proposals with league members</p>
+            <small>Available after joining a league</small>
+          </div>
+        </a>
+        
+        <a href="#" class="sitemap-link disabled">
+          <span class="link-icon">💬</span>
+          <div class="link-content">
+            <h3>Community Board</h3>
+            <p>Communicate with your league members</p>
+            <small>Available after joining a league</small>
+          </div>
+        </a>
+        
+        <a href="#" class="sitemap-link disabled">
+          <span class="link-icon">📊</span>
+          <div class="link-content">
+            <h3>Activity Feed</h3>
+            <p>Track all league activities and updates</p>
+            <small>Available after joining a league</small>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="sitemap-section">
+      <h2>Legal & Support</h2>
+      <div class="sitemap-links">
+        <a href="{{ url_for('faq') }}" class="sitemap-link">
+          <span class="link-icon">❓</span>
+          <div class="link-content">
+            <h3>FAQ</h3>
+            <p>Frequently asked questions and answers</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('privacy') }}" class="sitemap-link">
+          <span class="link-icon">🔒</span>
+          <div class="link-content">
+            <h3>Privacy Policy</h3>
+            <p>How we collect, use, and protect your data</p>
+          </div>
+        </a>
+        
+        <a href="{{ url_for('terms') }}" class="sitemap-link">
+          <span class="link-icon">📄</span>
+          <div class="link-content">
+            <h3>Terms of Service</h3>
+            <p>Terms and conditions for using TradeGrade</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sitemap-footer">
+    <h3>Need Help?</h3>
+    <p>Can't find what you're looking for? Check our FAQ or contact support.</p>
+    <div class="sitemap-actions">
+      <a href="{{ url_for('faq') }}" class="action-btn primary">View FAQ</a>
+      <a href="{{ url_for('contact') }}" class="action-btn secondary">Contact Support</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.sitemap-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.sitemap-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.sitemap-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+}
+
+.sitemap-header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.sitemap-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.sitemap-section h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary);
+}
+
+.sitemap-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.sitemap-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sitemap-link:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary);
+}
+
+.sitemap-link.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.link-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-light), var(--bg-secondary));
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+}
+
+.link-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.link-content p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.link-content small {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.sitemap-footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+}
+
+.sitemap-footer h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.sitemap-footer p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.sitemap-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background: linear-gradient(135deg, var(--primary-hover), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.action-btn.secondary {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-light);
+}
+
+.action-btn.secondary:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .sitemap-container {
+    padding: 1rem;
+  }
+  
+  .sitemap-header h1 {
+    font-size: 2rem;
+  }
+  
+  .sitemap-links {
+    grid-template-columns: 1fr;
+  }
+  
+  .sitemap-link {
+    padding: 1.25rem;
+  }
+  
+  .sitemap-footer {
+    padding: 2rem 1rem;
+  }
+  
+  .sitemap-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .action-btn {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %}

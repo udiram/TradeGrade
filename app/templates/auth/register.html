@@ -10,8 +10,15 @@
     
     <form method="post" class="auth-form">
       <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required placeholder="patmahomes" minlength="3" maxlength="50" pattern="[a-zA-Z0-9_]+" title="Username must contain only letters, numbers, and underscores">
+        <small class="form-help">3-50 characters, letters, numbers, and underscores only</small>
+      </div>
+      
+      <div class="form-group">
         <label for="display_name">Display Name</label>
         <input type="text" id="display_name" name="display_name" required placeholder="Pat Mahomes">
+        <small class="form-help">This is how others will see your name</small>
       </div>
       
       <div class="form-group">
@@ -97,6 +104,13 @@
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .auth-btn {

@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+{% block title %}FAQ - TradeGrade{% endblock %}
+{% block content %}
+<div class="faq-container">
+  <div class="faq-header">
+    <h1>Frequently Asked Questions</h1>
+    <p>Find answers to common questions about TradeGrade</p>
+  </div>
+
+  <div class="faq-content">
+    <div class="faq-categories">
+      <div class="faq-category">
+        <h2>Getting Started</h2>
+        <div class="faq-items">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How do I create a league?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>To create a league, click the "Create League" button on your dashboard. You'll be prompted to enter a league name and will receive a unique invite code to share with friends.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How do I join an existing league?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Click "Join League" on your dashboard and enter the invite code provided by your league commissioner. You'll be added to the league immediately.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How many players can be in a league?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>TradeGrade supports leagues with 2-16 members. The optimal size is 8-12 members for the best fantasy experience.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-category">
+        <h2>Roster Management</h2>
+        <div class="faq-items">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How do I add players to my roster?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Use the search function on your roster page to find players. Type any part of their name, team, or position. Click "Add Player" to add them to your roster.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>Can I have the same player as another team?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>No, each player can only be on one team per league. If a player is already taken, you'll see a message indicating they're unavailable.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How do I set my starting lineup?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Click the "Start" button next to any player on your bench to move them to your starting lineup. Click "Bench" to move them back to your bench.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-category">
+        <h2>Trade Analysis</h2>
+        <div class="faq-items">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How does the trade analysis work?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Our AI analyzes player statistics, recent performance, expert consensus, and news to provide comprehensive trade recommendations. The analysis considers your team's needs and the impact on your roster.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>What factors are considered in trade analysis?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>We analyze player stats, injury reports, team matchups, expert rankings, recent news, and your team's positional needs to give you the most accurate trade recommendations.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How accurate are the trade recommendations?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Our AI combines multiple data sources and expert analysis to provide recommendations. While no system is 100% accurate, our analysis gives you valuable insights to make informed decisions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-category">
+        <h2>Sit/Start Analysis</h2>
+        <div class="faq-items">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How does sit/start analysis work?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Click "Sit/Start?" next to any player to get AI-powered analysis considering their matchup, recent performance, injury status, and your team's alternatives.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>What if I don't have alternatives at a position?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>If you only have one player at a position, the analysis will recommend starting them and suggest looking for alternatives on the waiver wire or through trades.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-category">
+        <h2>Community Features</h2>
+        <div class="faq-items">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How do I use the community board?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>The community board is league-specific. Post trade requests, general discussions, or use @mentions to tag specific league members in your posts.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>Can I edit or delete my posts?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Yes, you can edit or delete your own posts. Click the edit or delete buttons that appear when you hover over your posts.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>How do trade proposals work?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Create trade proposals by selecting players to offer and request. The system will generate analysis for both parties. Proposals can be accepted, rejected, or countered.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-category">
+        <h2>Technical Support</h2>
+        <div class="faq-items">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>Is my data secure?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Yes, we use industry-standard security measures to protect your data. All data is encrypted and stored securely. See our Privacy Policy for more details.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>Can I use TradeGrade on mobile?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Yes, TradeGrade is fully responsive and works great on mobile devices. You can access all features from your phone or tablet.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>What if I find a bug or have a suggestion?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Please contact us through our support page. We appreciate feedback and work quickly to resolve issues and implement new features.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-contact">
+    <h3>Still have questions?</h3>
+    <p>Can't find what you're looking for? We're here to help!</p>
+    <a href="{{ url_for('contact') }}" class="contact-btn">Contact Support</a>
+  </div>
+</div>
+
+<style>
+.faq-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.faq-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.faq-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+}
+
+.faq-header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.faq-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.faq-category h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary);
+}
+
+.faq-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.faq-item {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary);
+}
+
+.faq-question {
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.faq-question:hover {
+  background: var(--bg-secondary);
+  color: var(--primary);
+}
+
+.faq-icon {
+  font-size: 1.25rem;
+  font-weight: 300;
+  transition: transform 0.3s ease;
+  color: var(--primary);
+}
+
+.faq-item.active .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 200px;
+}
+
+.faq-answer p {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.faq-contact {
+  text-align: center;
+  margin-top: 4rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary-light), var(--bg-secondary));
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+}
+
+.faq-contact h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.faq-contact p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.contact-btn:hover {
+  background: linear-gradient(135deg, var(--primary-hover), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+@media (max-width: 768px) {
+  .faq-container {
+    padding: 1rem;
+  }
+  
+  .faq-header h1 {
+    font-size: 2rem;
+  }
+  
+  .faq-question {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .faq-answer p {
+    padding: 0 1rem 1rem 1rem;
+  }
+  
+  .faq-contact {
+    margin-top: 2rem;
+    padding: 1.5rem;
+  }
+}
+</style>
+
+<script>
+function toggleFAQ(button) {
+  const faqItem = button.parentElement;
+  const isActive = faqItem.classList.contains('active');
+  
+  // Close all other FAQ items
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  // Toggle current item
+  if (!isActive) {
+    faqItem.classList.add('active');
+  }
+}
+</script>
+{% endblock %}

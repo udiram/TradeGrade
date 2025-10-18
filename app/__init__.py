@@ -75,6 +75,30 @@ def register_routes(app: Flask) -> None:
     def examples():
         return render_template("examples.html")
     
+    @app.route("/faq")
+    def faq():
+        return render_template("faq.html")
+    
+    @app.route("/about")
+    def about():
+        return render_template("about.html")
+    
+    @app.route("/contact")
+    def contact():
+        return render_template("contact.html")
+    
+    @app.route("/privacy")
+    def privacy():
+        return render_template("privacy.html")
+    
+    @app.route("/terms")
+    def terms():
+        return render_template("terms.html")
+    
+    @app.route("/sitemap")
+    def sitemap():
+        return render_template("sitemap.html")
+    
     # Add robots.txt route
     @app.route('/robots.txt')
     def robots_txt():

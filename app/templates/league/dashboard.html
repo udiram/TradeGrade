@@ -3,7 +3,7 @@
 {% block content %}
 <div class="dashboard-header">
   <div class="welcome-section">
-    <h2>Welcome back, {{ current_user.display_name or current_user.email.split('@')[0] }}!</h2>
+    <h2>Welcome back, {{ current_user.display_name or current_user.username }}!</h2>
     <p class="subtitle">Manage your fantasy football leagues and dominate the competition</p>
   </div>
   

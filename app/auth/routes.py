@@ -11,9 +11,9 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
+        identifier = request.form.get("identifier", "").strip()
         password = request.form.get("password", "")
-        user = User.query.filter_by(email=email).first()
+        user = User.find_by_email_or_username(identifier)
         if user and user.check_password(password):
             login_user(user)
             return redirect(url_for("league.dashboard"))
@@ -25,12 +25,30 @@ def login():
 def register():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
+        username = request.form.get("username", "").strip().lower()
         password = request.form.get("password", "")
         display_name = request.form.get("display_name")
+        
+        # Validate username format
+        import re
+        if not re.match(r'^[a-zA-Z0-9_]+$', username):
+            flash("Username can only contain letters, numbers, and underscores", "warning")
+            return render_template("auth/register.html")
+        
+        if len(username) < 3 or len(username) > 50:
+            flash("Username must be between 3 and 50 characters", "warning")
+            return render_template("auth/register.html")
+        
+        # Check if email or username already exists
         if User.query.filter_by(email=email).first():
             flash("Email already registered", "warning")
             return render_template("auth/register.html")
-        user = User(email=email, display_name=display_name)
+        
+        if User.query.filter_by(username=username).first():
+            flash("Username already taken", "warning")
+            return render_template("auth/register.html")
+        
+        user = User(email=email, username=username, display_name=display_name)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()

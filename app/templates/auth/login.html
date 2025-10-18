@@ -10,8 +10,9 @@
     
     <form method="post" class="auth-form">
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required placeholder="you@example.com">
+        <label for="identifier">Email or Username</label>
+        <input type="text" id="identifier" name="identifier" required placeholder="you@example.com or username">
+        <small class="form-help">Enter your email address or username</small>
       </div>
       
       <div class="form-group">
@@ -92,6 +93,13 @@
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .auth-btn {
