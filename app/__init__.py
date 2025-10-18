@@ -146,6 +146,16 @@ def run_startup_tasks(app: Flask) -> None:
             if not existing_tables:
                 print("No database tables found. Skipping startup tasks.")
                 return
+            
+            # Check if player table has injury_status column
+            if 'player' in existing_tables:
+                try:
+                    # Try to query the injury_status column to see if it exists
+                    from sqlalchemy import text
+                    db.session.execute(text("SELECT injury_status FROM player LIMIT 1"))
+                except Exception:
+                    print("Injury status columns not found. Skipping player sync until migration runs.")
+                    return
                 
             from .services.players import warm_players_cache, sync_active_players_into_db, purge_non_nfl_players
             from .models import Player

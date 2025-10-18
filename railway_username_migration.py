@@ -134,6 +134,39 @@ def add_username_column():
         # Commit changes
         connection.commit()
         print("✅ Migration completed successfully!")
+        
+        # Trigger player sync after migration
+        print("🔄 Triggering player sync with injury status...")
+        try:
+            import subprocess
+            import os
+            # Set environment variables for the sync
+            os.environ['FLASK_APP'] = 'run.py'
+            result = subprocess.run(['python', '-c', '''
+from app import create_app
+from app.services.players import warm_players_cache, sync_active_players_into_db, purge_non_nfl_players
+from app.models import Player
+from app.extensions import db
+
+app = create_app()
+with app.app_context():
+    print("Warming players cache...")
+    warm_players_cache()
+    print("Syncing NFL players to database...")
+    removed = purge_non_nfl_players(db, Player)
+    added = sync_active_players_into_db(db, Player)
+    print(f"Player sync complete: {removed} removed, {added} added")
+'''], capture_output=True, text=True, timeout=60)
+            
+            if result.returncode == 0:
+                print("✅ Player sync completed successfully")
+                if result.stdout:
+                    print(f"Sync output: {result.stdout}")
+            else:
+                print(f"⚠️ Player sync failed: {result.stderr}")
+        except Exception as e:
+            print(f"⚠️ Player sync failed: {e}")
+        
         return True
         
     except Exception as e:
