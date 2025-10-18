@@ -1,14 +1,15 @@
 {
-  "last_updated": "2025-10-17T22:55:01.006147",
+  "last_updated": "2025-10-17T22:55:03.727643",
   "releases": [
     {
       "version": "2025.10.17.1",
       "date": "2025-10-17",
       "type": "minor",
-      "summary": "PWA assets, robots.txt, and UI improvements and 9 other changes",
+      "summary": "PWA assets, robots.txt, and UI improvements and 10 other changes",
       "features": [
         "PWA assets, robots.txt, and UI improvements",
         "Railway username migration to deployment",
+        "Automatic releases tracking system with git hooks and beautiful UI",
         "Injury status support for players",
         "Injury status tracking and display for players",
         "Injury_status column check and post-migration player sync",
