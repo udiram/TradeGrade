@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <linearGradient id="footballGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="180" height="180" rx="40" fill="url(#backgroundGradient)"/>
+  
+  <!-- Football shape -->
+  <ellipse cx="90" cy="90" rx="70" ry="40" fill="url(#footballGradient)" stroke="#1e40af" stroke-width="3"/>
+  
+  <!-- Football laces -->
+  <path d="M 30 60 Q 90 40 150 60" stroke="white" stroke-width="4" fill="none" opacity="0.9"/>
+  <path d="M 30 120 Q 90 140 150 120" stroke="white" stroke-width="4" fill="none" opacity="0.9"/>
+  <path d="M 30 60 Q 90 90 30 120" stroke="white" stroke-width="2" fill="none" opacity="0.7"/>
+  <path d="M 150 60 Q 90 90 150 120" stroke="white" stroke-width="2" fill="none" opacity="0.7"/>
+  
+  <!-- Center line -->
+  <line x1="90" y1="50" x2="90" y2="130" stroke="white" stroke-width="2" opacity="0.8"/>
+  
+  <!-- TradeGrade text -->
+  <text x="90" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e40af">TradeGrade</text>
+</svg>

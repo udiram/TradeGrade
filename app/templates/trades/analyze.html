@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% block title %}Trade Analysis - TradeGrade{% endblock %}
 {% block content %}
-<h3>Trade Analysis</h3>
+<div class="section-title flex justify-between items-center mb-6">
+  <h3>Trade Analysis</h3>
+  <span class="badge">Analysis</span>
+</div>
 <form method="post" id="trade-form">
   <article class="card trade-section">
-    <h5>Players you trade away</h5>
-    <p class="muted">Select from your roster</p>
+    <div class="section-header mb-4">
+      <h5>Players you trade away</h5>
+      <p class="muted">Select from your roster</p>
+    </div>
     <div class="player-selection">
       {% for p in roster_players %}
         <div class="player-option">
@@ -21,8 +26,10 @@
   </article>
 
   <article class="card trade-section">
-    <h5>Players you receive</h5>
-    <p class="muted">Search and add players (autocomplete)</p>
+    <div class="section-header mb-4">
+      <h5>Players you receive</h5>
+      <p class="muted">Search and add players (autocomplete)</p>
+    </div>
     <div id="requested-list" class="requested-players"></div>
     <div class="search-section">
       <div class="search-input-group">
@@ -34,7 +41,9 @@
     <input type="hidden" name="requested_ids" id="requested-ids" value="">
   </article>
 
-  <button type="submit" class="analyze-btn">Analyze Trade</button>
+  <div class="form-actions">
+    <button type="submit" class="analyze-btn w-full">Analyze Trade</button>
+  </div>
 </form>
 
 <script>
@@ -100,7 +109,7 @@
 </script>
 
 <style>
-/* Trade Analysis Mobile Styles */
+/* Trade Analysis Styles */
 #trade-form {
   max-width: 100%;
 }
@@ -109,11 +118,29 @@
   margin-bottom: 2rem;
 }
 
+.section-header {
+  margin-bottom: 1rem;
+}
+
+.section-header h5 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
 .player-selection {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.75rem;
   margin: 1rem 0;
+  align-items: start;
 }
 
 .player-option {
@@ -125,6 +152,7 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .player-option:hover {
@@ -172,6 +200,7 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  align-items: stretch;
 }
 
 .search-input-group input {
@@ -181,6 +210,7 @@
 .search-input-group button {
   flex-shrink: 0;
   min-width: 80px;
+  min-height: 44px;
 }
 
 .requested-players {
@@ -249,7 +279,7 @@
   padding: 1rem;
   font-size: 1.125rem;
   font-weight: 700;
-  margin-top: 2rem;
+  min-height: 48px;
 }
 
 /* Mobile Responsive */
@@ -275,11 +305,13 @@
 
   .search-input-group {
     flex-direction: column;
+    gap: 0.75rem;
   }
 
   .search-input-group button {
     width: 100%;
     padding: 0.75rem;
+    min-height: 48px;
   }
 
   .requested-players {
@@ -315,6 +347,7 @@
   .analyze-btn {
     padding: 0.875rem;
     font-size: 1rem;
+    min-height: 48px;
   }
 }
 </style>

@@ -74,6 +74,11 @@ def register_routes(app: Flask) -> None:
     @app.route("/examples")
     def examples():
         return render_template("examples.html")
+    
+    # Add robots.txt route
+    @app.route('/robots.txt')
+    def robots_txt():
+        return app.send_static_file('robots.txt')
 
     # Add custom Jinja2 filters
     @app.template_filter('from_json')

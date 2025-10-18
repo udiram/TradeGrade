@@ -1,23 +1,30 @@
 {% extends 'base.html' %}
 {% block title %}Roster - TradeGrade{% endblock %}
 {% block content %}
-<div class="section-title">
+<div class="section-title flex justify-between items-center mb-6">
   <h3>Your Roster</h3>
   <span class="badge">Roster</span>
 </div>
 
-<div class="add-player-section">
+<div class="add-player-section mb-8">
   <form method="post" action="{{ url_for('roster.add_player', league_id=league_id) }}" class="card">
     <input type="hidden" name="player_id" id="player_id">
-    <label>Player Name
+    <div class="form-group">
+      <label>Player Name</label>
       <input type="text" id="player_name" required placeholder="Search players..." autocomplete="off">
-    </label>
-    <div id="player_suggestions" class="muted" style="margin-top: 0.5rem; min-height: 20px;"></div>
-    <div class="player-details-grid">
-      <label>Position <input type="text" id="position" disabled></label>
-      <label>Team <input type="text" id="team" disabled></label>
     </div>
-    <button type="submit" class="add-player-btn">Add Player</button>
+    <div id="player_suggestions" class="muted mb-4" style="min-height: 20px;"></div>
+    <div class="player-details-grid">
+      <div class="form-group">
+        <label>Position</label>
+        <input type="text" id="position" disabled>
+      </div>
+      <div class="form-group">
+        <label>Team</label>
+        <input type="text" id="team" disabled>
+      </div>
+    </div>
+    <button type="submit" class="add-player-btn w-full">Add Player</button>
   </form>
 </div>
 
@@ -26,7 +33,10 @@
 
 <div class="roster-grid">
   <div class="card">
-    <div class="section-title"><h4>Starters</h4><span class="badge">{{ starters|length }}</span></div>
+    <div class="section-title flex justify-between items-center mb-4">
+      <h4>Starters</h4>
+      <span class="badge">{{ starters|length }}</span>
+    </div>
     {% for e in starters %}
       <div class="player-card">
         {% if e.player.external_id == 'easter_egg_rue_arlotta' %}
@@ -50,7 +60,10 @@
   </div>
 
   <div class="card">
-    <div class="section-title"><h4>Bench</h4><span class="badge">{{ bench|length }}</span></div>
+    <div class="section-title flex justify-between items-center mb-4">
+      <h4>Bench</h4>
+      <span class="badge">{{ bench|length }}</span>
+    </div>
     {% for e in bench %}
       <div class="player-card">
         {% if e.player.external_id == 'easter_egg_rue_arlotta' %}
@@ -255,7 +268,7 @@
 </script>
 
 <style>
-/* Roster-specific mobile styles */
+/* Roster-specific styles */
 .add-player-section {
   margin-bottom: 2rem;
 }
@@ -275,7 +288,8 @@
 .roster-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 2rem;
+  align-items: start;
 }
 
 .player-card {
@@ -288,6 +302,7 @@
   border: 1px solid var(--border);
   transition: all 0.2s ease;
   margin-bottom: 0.75rem;
+  position: relative;
 }
 
 .player-card:hover {
@@ -327,6 +342,7 @@
   flex-direction: column;
   gap: 0.5rem;
   flex-shrink: 0;
+  align-items: stretch;
 }
 
 .player-actions button,
@@ -338,6 +354,10 @@
   border-radius: var(--radius-sm);
   transition: all 0.2s ease;
   white-space: nowrap;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .player-actions .toggle-btn {
@@ -404,6 +424,7 @@
     justify-content: center;
     width: 100%;
     flex-wrap: wrap;
+    gap: 0.75rem;
   }
 
   .player-actions button,

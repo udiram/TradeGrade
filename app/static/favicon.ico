@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="footballGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Football shape -->
+  <ellipse cx="16" cy="16" rx="14" ry="8" fill="url(#footballGradient)" stroke="#1e40af" stroke-width="1"/>
+  
+  <!-- Football laces -->
+  <path d="M 8 12 Q 16 8 24 12" stroke="white" stroke-width="1.5" fill="none" opacity="0.8"/>
+  <path d="M 8 20 Q 16 24 24 20" stroke="white" stroke-width="1.5" fill="none" opacity="0.8"/>
+  <path d="M 8 12 Q 16 16 8 20" stroke="white" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M 24 12 Q 16 16 24 20" stroke="white" stroke-width="1" fill="none" opacity="0.6"/>
+  
+  <!-- Center line -->
+  <line x1="16" y1="8" x2="16" y2="24" stroke="white" stroke-width="1" opacity="0.7"/>
+</svg>
