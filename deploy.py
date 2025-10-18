@@ -84,6 +84,11 @@ def run_deployment():
                 db.create_all()
                 print("✅ Database tables created")
         
+        # Step 4: Run Railway-specific username migration
+        print("🔄 Running Railway username migration...")
+        if not run_command("python railway_username_migration.py", "Railway username migration"):
+            print("⚠️ Railway username migration failed, but continuing...")
+        
         print("🎉 Deployment completed successfully!")
         return True
         
